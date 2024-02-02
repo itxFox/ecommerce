@@ -108,6 +108,7 @@ $result = mysqli_query($conn, $query);
                 //stampa di tutti i prodotti del database della categoria scelta, se si seleziona Tutti, stamperà tutti i prodotti
                 
                 if (isset($_GET['categoria'])) {
+                    echo$_GET['categoria'];
                     if($_GET['categoria']!="Tutti")
                         $query = "SELECT prodotti.nome, prodotti.prezzo, prodotti.peso, prodotti.descrizione, prodotti.immagine, prodotti.stock
                                     FROM prodotti

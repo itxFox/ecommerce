@@ -1,4 +1,3 @@
-CREATE DATABASE ecommerce;
 CREATE TABLE prodotti (
     id_prodotto INT(255) AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(30),
@@ -6,30 +5,30 @@ CREATE TABLE prodotti (
     peso DOUBLE(10, 2),
     descrizione TEXT,
     immagine LONGBLOB,
-    categoria VARCHAR(30),
+    categoria INT(255),
     stock INT(255)
 );
 
-CREATE TABLE ordini (
-    id_ordine INT(255) AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT(255),
-    ammontare DOUBLE(10, 2),
-    indirizzoOrdine VARCHAR(50),
-    emailOrdine VARCHAR(25),
-    dataOrdine DATE,
-    statoOrdine VARCHAR(15)
-    FOREIGN KEY (customer_id) REFERENCES clienti(id_customer)
+CREATE TABLE clienti (
+	id_customer INT(255) AUTO_INCREMENT PRIMARY KEY,
+	email VARCHAR(25),
+	passw VARCHAR(30),
+	amministratore BOOLEAN DEFAULT FALSE,
+	nome VARCHAR(40),
+	indirizzo VARCHAR(50),
+	citta VARCHAR(15),
+	telefono VARCHAR(10)
 );
 
-CREATE TABLE clienti (
-    id_customer INT(255) AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(25),
-    passw VARCHAR(30),
-    amministratore BOOLEAN DEFAULT FALSE,
-    nome VARCHAR(40),
-    indirizzo VARCHAR(50),
-    citta VARCHAR(15),
-    telefono VARCHAR(10)
+CREATE TABLE ordini (
+	id_ordine INT(255) AUTO_INCREMENT PRIMARY KEY,
+	customer_id INT(255),
+	ammontare DOUBLE(10, 2),
+	indirizzoOrdine VARCHAR(50),
+	emailOrdine VARCHAR(25),
+	dataOrdine DATE,
+	statoOrdine VARCHAR(15),
+	FOREIGN KEY (customer_id) REFERENCES clienti(id_customer)
 );
 
 CREATE TABLE dettagliOrdini (
