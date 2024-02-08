@@ -1,4 +1,7 @@
 <?php
+session_start();
+ob_start(); // Avvia l'output buffering
+
 include "connection.php";
 $conn = mysqli_connect($hostname, $username, $password, $dbname);
 if (mysqli_connect_errno()) {
@@ -7,173 +10,169 @@ if (mysqli_connect_errno()) {
 $query = "USE ecommerce;";
 $result = mysqli_query($conn, $query);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-    <title>Shop Homepage - Start Bootstrap Template</title>
-    <!-- Favicon-->
-    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
-    <!-- Bootstrap icons-->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
-    <!-- Core theme CSS (includes Bootstrap)-->
-    <link href="css/styles.css" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="css/login.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
 </head>
 
 <body>
-    <!-- Navigation-->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container px-4 px-lg-5">
-            <a class="navbar-brand" href="#!">The future of furniture</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="#!">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#!">About</a></li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#!">All Products</a></li>
-                            <li>
-                                <hr class="dropdown-divider" />
-                            </li>
-                            <li><a class="dropdown-item" href="#!">Popular Items</a></li>
-                            <li><a class="dropdown-item" href="#!">New Arrivals</a></li>
-                        </ul>
-                    </li>
-                </ul>
-                <form class="d-flex">
-                    <button class="btn btn-outline-dark" type="submit">
-                        <i class="bi-cart-fill me-1"></i>
-                        Cart
-                        <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </nav>
-    <!-- Header-->
-    <header class="bg-dark py-5">
-        <div class="container px-4 px-lg-5 my-5">
-            <div class="text-center text-white">
-                <h1 class="display-4 fw-bolder">Fox's furniture</h1>
-                <p class="lead fw-normal text-white-50 mb-0">poltrone e sofà, informatici di qualità</p>
-            </div>
-        </div>
-    </header>
-    <!-- SEZIONE DEI PRODOTTI-->
-    <section class="py-5">
+    <section class="vh-100 gradient-custom">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                    <div class="card bg-dark text-white" style="border-radius: 1rem;">
+                        <div class="card-body p-5 text-center">
 
-        <!--CATEGORIA PRODOTTI-->
-        <form action="" method="GET" name="form-categoria">
-            <select class="form-select" name="categoria" onchange="submit();">
-                <option hidden>categoria</option>
-                <option value="Tutti">Tutti</option>
-
-                <?php
-                $query = 'SELECT categorieprodotti.id_categoria, categorieprodotti.nome, categorieprodotti.descrizione FROM categorieprodotti';
-                $result = mysqli_query($conn, $query);
-
-                if ($result->num_rows > 0) {
-                    while ($row = mysqli_fetch_array($result)) {
-                        echo '<option value="' . $row["id_categoria"] . '">' . $row["nome"] . '</option>';
-                    }
-                } else {
-                    echo 'Nessun dato presente';
-
-                }
-
-                ?>
-            </select>
-        </form>
-      
-        <!-- CONTENITORE DEI PRODOTTI-->
-        <div class="container px-4 px-lg-5 mt-5">
-            <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+                            <div class="mb-md-5 mt-md-4 pb-5">
 
 
-
-
-                <!-- INIZIO PRODOTTI-->
-
-                <?php
-                //stampa di tutti i prodotti del database della categoria scelta, se si seleziona Tutti, stamperà tutti i prodotti
-                
-                if (isset($_GET['categoria'])) {
-                    echo$_GET['categoria'];
-                    if($_GET['categoria']!="Tutti")
-                        $query = "SELECT prodotti.nome, prodotti.prezzo, prodotti.peso, prodotti.descrizione, prodotti.immagine, prodotti.stock
-                                    FROM prodotti
-                                    WHERE prodotti.categoria=".$_GET['categoria'].";";
-                    else
-                        $query = "SELECT prodotti.nome, prodotti.prezzo, prodotti.peso, prodotti.descrizione, prodotti.immagine, prodotti.stock
-                                    FROM prodotti;";
-                    $result = mysqli_query($conn, $query);
-                    if ($result->num_rows > 0) {
-                        while ($row = mysqli_fetch_array($result)) {
-                            echo '<div class="col mb-5">
-                                <div class="card h-100">
-                                    <!-- Product image-->
-                                    <img class="card-img-top" src="'. $row["immagine"] .'" alt="..." />
-                                    <!-- Product details-->
-                                    <div class="card-body p-4">
-                                        <div class="text-center">
-                                            <!-- Product name-->
-                                            <h5 class="fw-bolder">' . $row["nome"] . '</h5>
-                                            <!-- Product reviews-->
-                                            <div class="d-flex justify-content-center small text-warning mb-2">
-                                                <div class="bi-star-fill"></div>
-                                                <div class="bi-star-fill"></div>
-                                                <div class="bi-star-fill"></div>
-                                                <div class="bi-star-fill"></div>
-                                                <div class="bi-star-fill"></div>
+                                <form action="" method="POST">
+                                    <?php 
+                                        if (isset($_POST['registrati'])) echo'<h2 class="fw-bold mb-2 text-uppercase">Registrati</h2>';
+                                        else echo'<h2 class="fw-bold mb-2 text-uppercase">Accedi</h2>';
+                                    ?>
+                                    <br><br><br>
+                                    <?php
+                                    if (isset($_POST['registrati']))
+                                        echo '<div>
+                                                <input type="email" id="typeEmailX" name="typeEmailX" placeholder="email" class="inputbox" />
+                                                <input type="password" id="typePasswordX" name="typePasswordX" placeholder="password" class="inputbox" />
+                                                <br>
+                                                <input type="text" id="typeNameX" name="typeNameX" placeholder="nome" class="inputbox" required/>
+                                                <input type="indirizzo" id="typeIndirizzoX" name="typeIndirizzoX" placeholder="indirizzo" class="inputbox" required/>
+                                                <br>
+                                                <input type="text" id="typeCittaX" name="typeCittaX" placeholder="città" class="inputbox" required/>
+                                                <input type="text" class="inputbox" id="typeNumeroX" name="typeNumeroX" placeholder="telefono" required />
+                                                <br>
+                                                <input type="password" id="typePasswordXConferma" name="typePasswordXConferma" placeholder="conferma password" class="inputbox"required />
+                                                </div>';
+                                    else
+                                        echo '<div class="form-outline form-white mb-4">
+                                                <input type="email" id="typeEmailX" name="typeEmailX"
+                                                    class="form-control form-control-lg" />
+                                                <label class="form-label" for="typeEmailX">Email</label>
                                             </div>
-                                            <!-- Product price-->
-                                            ' . $row["prezzo"] . '
-                                        </div>
-                                    </div>
-                                    <!-- Product actions-->
-                                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="#">Add to cart</a>
-                                        </div>
-                                    </div>
+
+                                            <div class="form-outline form-white mb-4">
+                                                <input type="password" id="typePasswordX" name="typePasswordX"
+                                                    class="form-control form-control-lg" />
+                                                <label class="form-label" for="typePasswordX">Password</label>
+                                            </div>';
+                                    ?>
+
+                                    <?php 
+                                        if (!isset($_POST['registrati']))
+                                            echo'<button class="btn btn-outline-light btn-lg px-5" type="submit" id="loginButton" name="loginButton"
+                                            disabled>Entra</button>';
+                                        else
+                                        echo'<button class="btn btn-outline-light btn-lg px-5" type="submit" id="signinButton" name="v"
+                                            disabled>Registra</button>';
+                                    ?>
+                                    
+                                </form>
+                                <?php
+                                if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['loginButton'])) {
+                                    if (isset($_POST['typeEmailX']) && isset($_POST['typePasswordX'])) {
+                                        $query = 'SELECT clienti.email, clienti.passw, clienti.amministratore
+                                                    FROM clienti
+                                                    WHERE clienti.email="' . $_POST['typeEmailX'] . '" AND clienti.passw="' . $_POST['typePasswordX'] . '";';
+
+                                        $result = mysqli_query($conn, $query);
+
+                                        if ($result->num_rows > 0) {
+                                            $row = mysqli_fetch_assoc($result);
+                                            $_SESSION['amministratore'] = $row['amministratore'];
+                                            header("Location: ecommerce.php");
+                                            exit();
+                                        } else {
+                                            // Utente non trovato, puoi aggiungere un messaggio o una logica aggiuntiva qui
+                                            echo "account non trovato";
+                                        }
+                                    }
+                                }
+
+                                if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signinButton'])){
+                                    echo'porco dio';
+                                }
+
+                                ?>
+
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        const emailInput = document.getElementById('typeEmailX');
+                                        const passwlInput = document.getElementById('typePasswordX');
+                                        const loginButton = document.getElementById('loginButton');
+                                        const signinButton = document.getElementById('signinButton');
+                                        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+                                        emailInput.addEventListener('input', function () {
+                                            if (emailRegex.test(emailInput.value) && passwlInput.value.length >= 5) {
+                                                loginButton.removeAttribute('disabled');
+                                                signinButton.removeAttribute('disabled');
+                                                
+                                            } else {
+                                                loginButton.setAttribute('disabled', 'true');
+                                                signinButton.setAttribute('disabled', 'true');
+                                            }
+                                        });
+
+                                        passwlInput.addEventListener('input', function () {
+                                            if (emailRegex.test(emailInput.value) && passwlInput.value.length >= 5) {
+                                                loginButton.removeAttribute('disabled');
+                                                signinButton.removeAttribute('disabled');
+                                            } else {
+                                                loginButton.setAttribute('disabled', 'true');
+                                                signinButton.setAttribute('disabled', 'true');
+                                            }
+                                        });
+                                    });
+                                </script>
+
+
+                                <div class="d-flex justify-content-center text-center mt-4 pt-1">
+                                    <a href="#!" class="text-white"><i class="fab fa-facebook-f fa-lg"></i></a>
+                                    <a href="#!" class="text-white"><i class="fab fa-twitter fa-lg mx-4 px-2"></i></a>
+                                    <a href="#!" class="text-white"><i class="fab fa-google fa-lg"></i></a>
                                 </div>
-                            </div>';
-                        }
-                    } else {
-                        echo "Nessun dato presente";
-                    }
-                }
 
-                ?>
+                            </div>
+                                
+                            <form action="" method="POST">
+                                <?php 
+                                    if (isset($_POST['registrati']))
+                                        echo'<p class="mb-0">Hai un account?
+                                        <button class="custom-button"
+                                            onclick="submit();">Accedi</button>
+                                    </p>';
+                                    else
+                                        echo'<p class="mb-0">Non hai un account?
+                                        <button class="custom-button" name="registrati"
+                                            onclick="submit();">Registrati</button>
+                                        </p>';
+                                ?>
+                                
+                            </form>
 
-
-                <!---------------------------->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
-
-
-
-
-    <!-- Footer-->
-    <footer class="py-5 bg-dark">
-        <div class="container">
-            <p class="m-0 text-center text-white">Copyright &copy; Your Website 2023</p>
-        </div>
-    </footer>
-    <!-- Bootstrap core JS-->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Core theme JS-->
-    <script src="js/scripts.js"></script>
 </body>
 
 </html>
+
+<?php
+ob_end_flush();
+?>

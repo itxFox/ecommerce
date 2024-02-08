@@ -1,7 +1,8 @@
 INSERT INTO clienti (email, passw, nome, indirizzo, citta, telefono)
 VALUES 
-('cliente1@email.com', 'password123', 'Mario Rossi', 'Via Roma 123', 'Milano', '1234567890'),
-('cliente2@email.com', 'securepass', 'Anna Bianchi', 'Corso Italia 456', 'Roma', '9876543210');
+('cliente1@gmail.com', 'password123', 'Mario Rossi', 'Via Roma 123', 'Milano', '1234567890'),
+('cliente2@gmail.com', 'securepass', 'Anna Bianchi', 'Corso Italia 456', 'Roma', '9876543210'),
+('admin@gmail.com', 'admin', 'admin', 'via admin 12', 'Parma', '9876543210');
 
 
 INSERT INTO categorieProdotti (nome, descrizione)
