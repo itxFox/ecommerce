@@ -145,7 +145,7 @@ $result = mysqli_query($conn, $query);
         </script>
 
         <?php
-        if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['nuovoProdotto'])) {
+        if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['nuovoProdotto']) && isset($_GET['amministratore'])==1) {
             //echo $_GET['nomeProdotto'] . " " . $_GET['prezzoProdotto'] . " " . $_GET['pesoProdotto'] . " " . $_GET['descrizioneProdotto'] . " " . $_GET['immagineProdotto'] . " " . $_GET['categoriaProdotto'] . " " . $_GET['stockProdotto'];
             // Inserimento nuovo prodotto
             $queryCategoria = 'SELECT categorieprodotti.id_categoria FROM categorieprodotti WHERE categorieprodotti.nome="' . $_GET['categoriaProdotto'] . '";';
