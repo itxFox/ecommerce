@@ -113,14 +113,14 @@ $result = mysqli_query($conn, $query);
 
         echo '<div id="divFormAggiungi">';
         if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['cliccato'])) {
-            echo '<form action="" method="GET">
+            echo '<form action="" method="POST" enctype="multipart/form-data">
             <div id="divFormInserimentoProdotto">
                 <h5>Inserisci un prodotto</h5>
                 <input type="text" placeholder="nome" name="nomeProdotto" id="nomeProdotto" required><br>
                 <input type="number" placeholder="prezzo" name="prezzoProdotto" id="prezzoProdotto" step="0.01" required><br>
                 <input type="number" placeholder="peso" name="pesoProdotto" id="pesoProdotto" step="0.01" required><br>
                 <input type="text" placeholder="descrizione" name="descrizioneProdotto" id="descrizioneProdotto" required><br>
-                <input type="text" placeholder="immagine" name="immagineProdotto" id="immagineProdotto" required><br>
+                <input type="file" name="immagineProdotto" id="immagineProdotto" accept="image/*"><br>
                 <select name="categoriaProdotto" id="categoriaProdotto">
                 ';
             echo '<option hidden>categoria</option>';
@@ -145,22 +145,28 @@ $result = mysqli_query($conn, $query);
         </script>
 
         <?php
-        if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['nuovoProdotto']) && isset($_GET['amministratore'])==1) {
+        if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['nuovoProdotto'])  && $_SESSION['amministratore'] == 1) {
             //echo $_GET['nomeProdotto'] . " " . $_GET['prezzoProdotto'] . " " . $_GET['pesoProdotto'] . " " . $_GET['descrizioneProdotto'] . " " . $_GET['immagineProdotto'] . " " . $_GET['categoriaProdotto'] . " " . $_GET['stockProdotto'];
             // Inserimento nuovo prodotto
-            $queryCategoria = 'SELECT categorieprodotti.id_categoria FROM categorieprodotti WHERE categorieprodotti.nome="' . $_GET['categoriaProdotto'] . '";';
+            $queryCategoria = 'SELECT categorieprodotti.id_categoria FROM categorieprodotti WHERE categorieprodotti.nome="' . $_POST['categoriaProdotto'] . '";';
             $resultCategoria = mysqli_query($conn, $queryCategoria);
 
-            if ($resultCategoria && mysqli_num_rows($resultCategoria) > 0) {
+            if ($resultCategoria && mysqli_num_rows($resultCategoria) > 0 ) {
                 $row = mysqli_fetch_assoc($resultCategoria);
                 $idCategoria = $row['id_categoria'];
 
-                $query = 'INSERT INTO prodotti (nome, prezzo, peso, descrizione, immagine, categoria, stock)
-                            VALUES("' . $_GET['nomeProdotto'] . '", ' . $_GET['prezzoProdotto'] . ', ' . $_GET['pesoProdotto'] . ', "' . $_GET['descrizioneProdotto'] . '", "http://localhost/ecommerce/furniture/' . $_GET['immagineProdotto'] . '", ' . $idCategoria . ', ' . $_GET['stockProdotto'] . ');';
+                if(move_uploaded_file($_FILES["immagineProdotto"]["tmp_name"], "/furniture/" . date("Y-m-d!H:i:s") . basename($_FILES["immagineProdotto"]["name"])) ){
+                    $filePos = "/furniture/" . date("Y-m-d!H:i:s") . basename($_FILES["immagineProdotto"]["name"]);
+                }
+                else{
+                    $filePos = "/furniture/noimage.png";
+                }
 
+                $query = 'INSERT INTO prodotti (nome, prezzo, peso, descrizione, immagine, categoria, stock)
+                VALUES("' . $_POST['nomeProdotto'] . '", ' . $_POST['prezzoProdotto'] . ', ' . $_POST['pesoProdotto'] . ', "' . $_POST['descrizioneProdotto'] . '", "' . $filePos . '", ' . $idCategoria . ', ' . $_POST['stockProdotto'] . ');';
                 $result = mysqli_query($conn, $query);
 
-                $query = 'INSERT INTO prodotti_categorie (id_prodotto, id_categoria) SELECT prodotti.id_prodotto, ' . $idCategoria . ' FROM prodotti WHERE prodotti.nome="' . $_GET['nomeProdotto'] . '" AND prodotti.prezzo=' . $_GET['prezzoProdotto'] . ' AND prodotti.peso=' . $_GET['pesoProdotto'] . ' AND prodotti.descrizione="' . $_GET['descrizioneProdotto'] . '" AND prodotti.immagine="http://localhost/ecommerce/furniture/' . $_GET['immagineProdotto'] . '" AND prodotti.categoria=' . $idCategoria . ' AND prodotti.stock=' . $_GET['stockProdotto'];
+                $query = 'INSERT INTO prodotti_categorie (id_prodotto, id_categoria) SELECT prodotti.id_prodotto, ' . $idCategoria . ' FROM prodotti WHERE prodotti.nome="' . $_POST['nomeProdotto'] . '" AND prodotti.prezzo=' . $_POST['prezzoProdotto'] . ' AND prodotti.peso=' . $_POST['pesoProdotto'] . ' AND prodotti.descrizione="' . $_POST['descrizioneProdotto'] . '" AND prodotti.immagine="' . $filePos . '" AND prodotti.categoria=' . $idCategoria . ' AND prodotti.stock=' . $_POST['stockProdotto'];
 
                 $result = mysqli_query($conn, $query);
 
@@ -198,7 +204,7 @@ $result = mysqli_query($conn, $query);
                         echo '<div class="col mb-5">
                                 <div class="card h-100">
                                     <!-- Product image-->
-                                    <img class="card-img-top" src="' . $row["immagine"] . '" alt="..." />
+                                    <img class="card-img-top" src="' . "http://localhost/ecommerce" . $row["immagine"] . '" alt="..." />
                                     <!-- Product details-->
                                     <div class="card-body p-4">
                                         <div class="text-center">
