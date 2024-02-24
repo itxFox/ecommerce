@@ -145,31 +145,52 @@ $result = mysqli_query($conn, $query);
         </script>
 
         <?php
-        if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['nuovoProdotto'])  && $_SESSION['amministratore'] == 1) {
-            //echo $_GET['nomeProdotto'] . " " . $_GET['prezzoProdotto'] . " " . $_GET['pesoProdotto'] . " " . $_GET['descrizioneProdotto'] . " " . $_GET['immagineProdotto'] . " " . $_GET['categoriaProdotto'] . " " . $_GET['stockProdotto'];
-            // Inserimento nuovo prodotto
-            $queryCategoria = 'SELECT categorieprodotti.id_categoria FROM categorieprodotti WHERE categorieprodotti.nome="' . $_POST['categoriaProdotto'] . '";';
-            $resultCategoria = mysqli_query($conn, $queryCategoria);
+        // Inserimento nuovo prodotto
+        if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['nuovoProdotto']) && $_SESSION['amministratore'] == 1) {
+            // Connessione al database
+            $conn = mysqli_connect($hostname, $username, $password, $dbname);
 
-            if ($resultCategoria && mysqli_num_rows($resultCategoria) > 0 ) {
-                $row = mysqli_fetch_assoc($resultCategoria);
-                $idCategoria = $row['id_categoria'];
+            // Verifica se la connessione ha avuto successo
+            if (!$conn) {
+                die("Connessione al database fallita: " . mysqli_connect_error());
+            }
 
-                if(move_uploaded_file($_FILES["immagineProdotto"]["tmp_name"], "/furniture/" . date("Y-m-d!H:i:s") . basename($_FILES["immagineProdotto"]["name"])) ){
-                    $filePos = "/furniture/" . date("Y-m-d!H:i:s") . basename($_FILES["immagineProdotto"]["name"]);
+            // Percorso della directory per l'upload delle immagini
+            $upload_dir = "furniture/";
+
+            // Verifica se la directory non esiste, quindi creala
+            if (!file_exists($upload_dir)) {
+                mkdir($upload_dir, 0777, true); // Imposta i permessi a 0777 per consentire la scrittura
+            }
+
+            // Controlla che la directory sia scrivibile
+            if (!is_writable($upload_dir)) {
+                echo "La directory di upload non ha i permessi di scrittura necessari.";
+                exit;
+            }
+
+            // Effettua l'upload del file
+            $target_file = $upload_dir . basename($_FILES["immagineProdotto"]["name"]);
+            if (move_uploaded_file($_FILES["immagineProdotto"]["tmp_name"], $target_file)) {
+                // Query per ottenere l'id della categoria
+                $queryCategoria = 'SELECT categorieprodotti.id_categoria FROM categorieprodotti WHERE categorieprodotti.nome="' . $_POST['categoriaProdotto'] . '";';
+                $resultCategoria = mysqli_query($conn, $queryCategoria);
+
+                if ($resultCategoria && mysqli_num_rows($resultCategoria) > 0) {
+                    $row = mysqli_fetch_assoc($resultCategoria);
+                    $idCategoria = $row['id_categoria'];
+
+                    // Query per inserire il nuovo prodotto nel database
+                    $query = 'INSERT INTO prodotti (nome, prezzo, peso, descrizione, immagine, categoria, stock)
+            VALUES("' . $_POST['nomeProdotto'] . '", ' . $_POST['prezzoProdotto'] . ', ' . $_POST['pesoProdotto'] . ', "' . $_POST['descrizioneProdotto'] . '", "' . $target_file . '", ' . $idCategoria . ', ' . $_POST['stockProdotto'] . ');';
+                    $result = mysqli_query($conn, $query);
+
+                    $query = 'INSERT INTO prodotti_categorie (id_prodotto, id_categoria) SELECT prodotti.id_prodotto, ' . $idCategoria . ' FROM prodotti WHERE prodotti.nome="' . $_POST['nomeProdotto'] . '" AND prodotti.prezzo=' . $_POST['prezzoProdotto'] . ' AND prodotti.peso=' . $_POST['pesoProdotto'] . ' AND prodotti.descrizione="' . $_POST['descrizioneProdotto'] . '" AND prodotti.immagine="' . $target_file . '" AND prodotti.categoria=' . $idCategoria . ' AND prodotti.stock=' . $_POST['stockProdotto'];
+
+                    $result = mysqli_query($conn, $query);
                 }
-                else{
-                    $filePos = "/furniture/noimage.png";
-                }
-
-                $query = 'INSERT INTO prodotti (nome, prezzo, peso, descrizione, immagine, categoria, stock)
-                VALUES("' . $_POST['nomeProdotto'] . '", ' . $_POST['prezzoProdotto'] . ', ' . $_POST['pesoProdotto'] . ', "' . $_POST['descrizioneProdotto'] . '", "' . $filePos . '", ' . $idCategoria . ', ' . $_POST['stockProdotto'] . ');';
-                $result = mysqli_query($conn, $query);
-
-                $query = 'INSERT INTO prodotti_categorie (id_prodotto, id_categoria) SELECT prodotti.id_prodotto, ' . $idCategoria . ' FROM prodotti WHERE prodotti.nome="' . $_POST['nomeProdotto'] . '" AND prodotti.prezzo=' . $_POST['prezzoProdotto'] . ' AND prodotti.peso=' . $_POST['pesoProdotto'] . ' AND prodotti.descrizione="' . $_POST['descrizioneProdotto'] . '" AND prodotti.immagine="' . $filePos . '" AND prodotti.categoria=' . $idCategoria . ' AND prodotti.stock=' . $_POST['stockProdotto'];
-
-                $result = mysqli_query($conn, $query);
-
+            } else {
+                echo "Si è verificato un errore durante il caricamento del file.";
             }
         }
 
@@ -204,7 +225,7 @@ $result = mysqli_query($conn, $query);
                         echo '<div class="col mb-5">
                                 <div class="card h-100">
                                     <!-- Product image-->
-                                    <img class="card-img-top" src="' . "http://localhost/ecommerce" . $row["immagine"] . '" alt="..." />
+                                    <img class="card-img-top" src="' . $row["immagine"] . '" alt="..." />
                                     <!-- Product details-->
                                     <div class="card-body p-4">
                                         <div class="text-center">
