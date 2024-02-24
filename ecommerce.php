@@ -171,28 +171,32 @@ $result = mysqli_query($conn, $query);
 
             // Effettua l'upload del file
             $target_file = $upload_dir . basename($_FILES["immagineProdotto"]["name"]);
-            if (move_uploaded_file($_FILES["immagineProdotto"]["tmp_name"], $target_file)) {
-                // Query per ottenere l'id della categoria
-                $queryCategoria = 'SELECT categorieprodotti.id_categoria FROM categorieprodotti WHERE categorieprodotti.nome="' . $_POST['categoriaProdotto'] . '";';
-                $resultCategoria = mysqli_query($conn, $queryCategoria);
 
-                if ($resultCategoria && mysqli_num_rows($resultCategoria) > 0) {
-                    $row = mysqli_fetch_assoc($resultCategoria);
-                    $idCategoria = $row['id_categoria'];
+            // Verifica se il prodotto esiste già nel database
+            $queryCheck = 'SELECT * FROM prodotti WHERE nome="' . $_POST['nomeProdotto'] . '" AND prezzo=' . $_POST['prezzoProdotto'] . ' AND descrizione="' . $_POST['descrizioneProdotto'] . '"';
+            $resultCheck = mysqli_query($conn, $queryCheck);
 
-                    // Query per inserire il nuovo prodotto nel database
-                    $query = 'INSERT INTO prodotti (nome, prezzo, peso, descrizione, immagine, categoria, stock)
-            VALUES("' . $_POST['nomeProdotto'] . '", ' . $_POST['prezzoProdotto'] . ', ' . $_POST['pesoProdotto'] . ', "' . $_POST['descrizioneProdotto'] . '", "' . $target_file . '", ' . $idCategoria . ', ' . $_POST['stockProdotto'] . ');';
-                    $result = mysqli_query($conn, $query);
-
-                    $query = 'INSERT INTO prodotti_categorie (id_prodotto, id_categoria) SELECT prodotti.id_prodotto, ' . $idCategoria . ' FROM prodotti WHERE prodotti.nome="' . $_POST['nomeProdotto'] . '" AND prodotti.prezzo=' . $_POST['prezzoProdotto'] . ' AND prodotti.peso=' . $_POST['pesoProdotto'] . ' AND prodotti.descrizione="' . $_POST['descrizioneProdotto'] . '" AND prodotti.immagine="' . $target_file . '" AND prodotti.categoria=' . $idCategoria . ' AND prodotti.stock=' . $_POST['stockProdotto'];
-
-                    $result = mysqli_query($conn, $query);
-                }
+            if ($resultCheck && mysqli_num_rows($resultCheck) > 0) {
             } else {
-                echo "Si è verificato un errore durante il caricamento del file.";
+                if (move_uploaded_file($_FILES["immagineProdotto"]["tmp_name"], $target_file)) {
+                    // Query per ottenere l'id della categoria
+                    $queryCategoria = 'SELECT categorieprodotti.id_categoria FROM categorieprodotti WHERE categorieprodotti.nome="' . $_POST['categoriaProdotto'] . '";';
+                    $resultCategoria = mysqli_query($conn, $queryCategoria);
+
+                    if ($resultCategoria && mysqli_num_rows($resultCategoria) > 0) {
+                        $row = mysqli_fetch_assoc($resultCategoria);
+                        $idCategoria = $row['id_categoria'];
+
+                        // Query per inserire il nuovo prodotto nel database
+                        $query = 'INSERT INTO prodotti (nome, prezzo, peso, descrizione, immagine, categoria, stock)
+                            VALUES("' . $_POST['nomeProdotto'] . '", ' . $_POST['prezzoProdotto'] . ', ' . $_POST['pesoProdotto'] . ', "' . $_POST['descrizioneProdotto'] . '", "' . $target_file . '", ' . $idCategoria . ', ' . $_POST['stockProdotto'] . ');';
+                        $result = mysqli_query($conn, $query);
+
+                    }
+                }
             }
         }
+
 
         ?>
 
