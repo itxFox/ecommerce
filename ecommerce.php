@@ -1,4 +1,5 @@
 <?php
+ob_start();
 session_start();
 include "connection.php";
 $conn = mysqli_connect($hostname, $username, $password, $dbname);
@@ -17,7 +18,7 @@ $result = mysqli_query($conn, $query);
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Shop Homepage - Start Bootstrap Template</title>
+    <title>Fox'shop</title>
     <!-- Favicon-->
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
     <!-- Bootstrap icons-->
@@ -105,11 +106,13 @@ $result = mysqli_query($conn, $query);
             </select>
         </form>
 
+        <!--BOTTONE AGGIUNZIONE PRODOTTO-->
         <?php
         if (isset($_SESSION['amministratore']) && $_SESSION['amministratore'] == 1)
             echo '<form action="" method="GET" id="formInserimentoProdotto">
             <button type="submit" name="cliccato">+</button>
             </form>';
+
 
         echo '<div id="divFormAggiungi">';
         if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['cliccato'])) {
@@ -144,8 +147,10 @@ $result = mysqli_query($conn, $query);
             }
         </script>
 
+
+
+        <!--INSERIMENTO DI UN PRODOTTO-->
         <?php
-        // Inserimento nuovo prodotto
         if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['nuovoProdotto']) && $_SESSION['amministratore'] == 1) {
             // Connessione al database
             $conn = mysqli_connect($hostname, $username, $password, $dbname);
@@ -217,11 +222,11 @@ $result = mysqli_query($conn, $query);
 
 
                 if (isset($_GET['categoria']) && $_GET['categoria'] != "Tutti")
-                    $query = "SELECT prodotti.nome, prodotti.prezzo, prodotti.peso, prodotti.descrizione, prodotti.immagine, prodotti.stock
+                    $query = "SELECT prodotti.id_prodotto, prodotti.nome, prodotti.prezzo, prodotti.peso, prodotti.descrizione, prodotti.immagine, prodotti.stock
                                     FROM prodotti
                                     WHERE prodotti.categoria=" . $_GET['categoria'] . ";";
                 else
-                    $query = "SELECT prodotti.nome, prodotti.prezzo, prodotti.peso, prodotti.descrizione, prodotti.immagine, prodotti.stock
+                    $query = "SELECT prodotti.id_prodotto, prodotti.nome, prodotti.prezzo, prodotti.peso, prodotti.descrizione, prodotti.immagine, prodotti.stock
                                     FROM prodotti;";
                 $result = mysqli_query($conn, $query);
                 if ($result->num_rows > 0) {
@@ -250,6 +255,15 @@ $result = mysqli_query($conn, $query);
                                     <!-- Product actions-->
                                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                                         <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="#">Add to cart</a>
+                                        <br></br>';
+                        if (isset($_SESSION['amministratore']) && $_SESSION['amministratore'] == 1) {
+                            echo '
+                                                <form action="" method="POST">
+                                                    <button onclick="submit();" style="color:red;font-size:20px;border-color:red;" name="bottoneEliminaProdotto" value="' . $row["id_prodotto"] . '">Elimina</button>
+                                                </form>';
+                        }
+
+                        echo '
                                         </div>
                                     </div>
                                 </div>
@@ -259,7 +273,26 @@ $result = mysqli_query($conn, $query);
                     echo "Nessun dato presente";
                 }
 
+                //ELIMINAZIONE PRODOTTO DAL DATABASE
+                
+                if (isset($_POST['bottoneEliminaProdotto'])) {
 
+                    $query = "SELECT prodotti.immagine FROM prodotti WHERE prodotti.id_prodotto = " . $_POST['bottoneEliminaProdotto'] . ";";
+                        $result = mysqli_query($conn, $query);
+
+                        if ($result) {
+                            $row = mysqli_fetch_assoc($result);
+                            $dirImmagineDaEliminare = $row['immagine'];
+
+                            if (file_exists($dirImmagineDaEliminare)) {
+                                unlink($dirImmagineDaEliminare);
+                            }
+                        }
+
+                    $query = "DELETE FROM prodotti WHERE prodotti.id_prodotto = " . $_POST['bottoneEliminaProdotto'] . ";";
+                    $result = mysqli_query($conn, $query);
+                    header("Refresh:0");
+                }
                 ?>
 
 
@@ -284,3 +317,6 @@ $result = mysqli_query($conn, $query);
 </body>
 
 </html>
+<?php 
+ob_end_flush();
+?>
