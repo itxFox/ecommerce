@@ -2,11 +2,9 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-    <title>Shop Homepage - Start Bootstrap Template</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrello</title>
     <!-- Favicon-->
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
     <!-- Bootstrap icons-->
@@ -41,14 +39,11 @@
                         </ul>
                     </li>
                 </ul>
-                <form class="d-flex">
-                    <a class="btn btn-outline-dark" href="cart.php">
-                        <i class="bi-cart-fill me-1"></i>
-                        Cart
-                        <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
-                    </a>
-                    &nbsp;&nbsp;&nbsp;
-                </form>
+                <a class="btn btn-outline-dark" href="cart.php">
+                    <i class="bi-cart-fill me-1"></i>
+                    Cart
+                    <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
+                </a>&nbsp;&nbsp;&nbsp;
                 <form action="index.php">
                     <button class="btn btn-outline-dark" type="submit">
                         <h7>Logout</h7>
@@ -58,19 +53,23 @@
         </div>
     </nav>
     <!-- Header-->
+    <header class="bg-dark py-5">
+        <div class="container px-4 px-lg-5 my-5">
+            <div class="text-center text-white">
+                <h1 class="display-4 fw-bolder">Fox's furniture</h1>
+                <p class="lead fw-normal text-white-50 mb-0">poltrone e sofà, informatici di qualità</p>
+            </div>
+        </div>
+    </header>
 
-
-
+    <h1>ORDINE EFFETTUATO!</h1>
     <!-- Footer-->
-    <footer class="py-5 bg-dark">
+    <footer class="py-5 bg-dark"
+        style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: #333; color: white; text-align: center; padding: 10px 0;">
         <div class="container">
             <p class="m-0 text-center text-white">Copyright &copy; Fox's furniture 2023</p>
         </div>
     </footer>
-    <!-- Bootstrap core JS-->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Core theme JS-->
-    <script src="js/scripts.js"></script>
 </body>
 
 </html>

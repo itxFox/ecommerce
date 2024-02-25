@@ -1,4 +1,5 @@
 <?php
+ob_start();
 session_start();
 include "connection.php";
 $conn = mysqli_connect($hostname, $username, $password, $dbname);
@@ -9,6 +10,15 @@ $query = "USE ecommerce;";
 $result = mysqli_query($conn, $query);
 if (!isset($_SESSION['carrello']))
     $_SESSION['carrello'] = array();
+
+
+if (isset($_POST['cancellaOrdine'])) {
+    $indiceDaRimuovere = array_search($_POST['cancellaOrdine'], $_SESSION['carrello']);
+    
+    if ($indiceDaRimuovere !== false) {
+        unset($_SESSION['carrello'][$indiceDaRimuovere]);
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,13 +39,14 @@ if (!isset($_SESSION['carrello']))
     <!-- Navigation-->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container px-4 px-lg-5">
-            <a class="navbar-brand" href="#!">The future of furniture</a>
+            <p class="navbar-brand" href="#!">The future of furniture</p>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
                 aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="ecommerce.php">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="ecommerce.php">Home</a>
+                    </li>
                     <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
@@ -50,14 +61,7 @@ if (!isset($_SESSION['carrello']))
                         </ul>
                     </li>
                 </ul>
-                <form class="d-flex">
-                    <a class="btn btn-outline-dark" href="cart.php">
-                        <i class="bi-cart-fill me-1"></i>
-                        Cart
-                        <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
-                        </a>
-                    &nbsp;&nbsp;&nbsp;
-                </form>
+
                 <form action="index.php">
                     <button class="btn btn-outline-dark" type="submit">
                         <h7>Logout</h7>
@@ -82,37 +86,28 @@ if (!isset($_SESSION['carrello']))
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col-10">
 
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h3 class="fw-normal mb-0 text-black">Shopping Cart</h3>
-                        <div>
-                            <p class="mb-0"><span class="text-muted">Sort by:</span> <a href="#!"
-                                    class="text-body">price <i class="fas fa-angle-down mt-1"></i></a></p>
-                        </div>
-                    </div>
-
 
                     <!--CARRELLO-->
 
                     <?php
-                        $prezzoTotale=0;
-                        foreach (array_unique($_SESSION['carrello']) as $prodottoDaAcquistare) {
+                    $prezzoTotale = 0;
+                    foreach (array_unique($_SESSION['carrello']) as $prodottoDaAcquistare) {
 
-                            $query='SELECT prodotti.nome, prodotti.prezzo, prodotti.peso, prodotti.descrizione, prodotti.immagine, prodotti.categoria, prodotti.stock FROM prodotti WHERE prodotti.id_prodotto="'.$prodottoDaAcquistare.'"';
+                        $query = 'SELECT prodotti.id_prodotto, prodotti.nome, prodotti.prezzo, prodotti.peso, prodotti.descrizione, prodotti.immagine, prodotti.categoria, prodotti.stock FROM prodotti WHERE prodotti.id_prodotto="' . $prodottoDaAcquistare . '"';
 
-                            $result = mysqli_query($conn, $query);
-                            $row= mysqli_fetch_array($result);
-                            $prezzoTotale= $prezzoTotale+$row['prezzo'];
-                            echo'<div class="card rounded-3 mb-4">
+                        $result = mysqli_query($conn, $query);
+                        $row = mysqli_fetch_array($result);
+                        $prezzoTotale = $prezzoTotale + $row['prezzo'];
+                        echo '<div class="card rounded-3 mb-4">
                             <div class="card-body p-4">
                                 <div class="row d-flex justify-content-between align-items-center">
                                     <div class="col-md-2 col-lg-2 col-xl-2">
-                                        <img src="'.$row['immagine'].'"
+                                        <img src="' . $row['immagine'] . '"
                                             class="img-fluid rounded-3" alt="Cotton T-shirt">
                                     </div>
                                     <div class="col-md-3 col-lg-3 col-xl-3">
                                         <p class="lead fw-normal mb-2">Basic T-shirt</p>
-                                        <p>Color:
-                                            </span></p>
+                                        <p>Color: Default</p>
                                     </div>
                                     <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
                                         <button class="btn btn-link px-2"
@@ -129,24 +124,43 @@ if (!isset($_SESSION['carrello']))
                                         </button>
                                     </div>
                                     <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
-                                        <h5 class="mb-0">'.$row['prezzo'].'€</h5>
+                                        <h5 class="mb-0">' . $row['prezzo'] . '€</h5>
+                                        <form action="" method="POST">
+                                        <button style="border:none;background-color:transparent;color:red;font-size:30px; float:right;" value="'.$row['id_prodotto'].'" name="cancellaOrdine">x</button>
+                                    </form>
                                     </div>
+                                    
                                     <div class="col-md-1 col-lg-1 col-xl-1 text-end">
                                         <a href="#!" class="text-danger"><i class="fas fa-trash fa-lg"></i></a>
                                     </div>
                                 </div>
                             </div>
                         </div>';
-                        }
+                    }
+
                     ?>
-                    
+
                     <!------------------------------------>
 
 
                     <div class="card">
                         <div class="card-body">
-                            <button type="button" style="border: 1px solid yellow;border-radius:10px;padding:10px;background-color:yellow;font-size:20px;">Proceed to Pay</button>
-                            <h2 style="float:right; margin-right:200px;">Totale: <?php echo$prezzoTotale."€";?></h2> 
+                            <form action="" method="POST">
+                                <button onclick="submit();" name="acquista"
+                                    style="border: 1px solid yellow;border-radius:10px;padding:10px;background-color:yellow;font-size:20px;">Proceed
+                                    to Pay</button>
+                            </form>
+                            <?php
+                            if (isset($_POST['acquista'])) {
+                                unset($_SESSION['carrello']);
+                                header("Location: ordine.php");
+                                exit;
+                            }
+
+                            ?>
+                            <h2 style="float:right; margin-right:200px;">Totale:
+                                <?php echo $prezzoTotale . "€"; ?>
+                            </h2>
                         </div>
                     </div>
 
@@ -166,3 +180,6 @@ if (!isset($_SESSION['carrello']))
 </body>
 
 </html>
+<?php
+ob_end_flush();
+?>

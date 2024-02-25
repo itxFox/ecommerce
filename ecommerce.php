@@ -35,7 +35,7 @@ if (!isset($_SESSION['carrello']) || !is_array($_SESSION['carrello'])) {
     <!-- Navigation-->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container px-4 px-lg-5">
-            <a class="navbar-brand" href="#!">The future of furniture</a>
+            <p class="navbar-brand" href="#!">The future of furniture</p>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
                 aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
@@ -60,8 +60,8 @@ if (!isset($_SESSION['carrello']) || !is_array($_SESSION['carrello'])) {
                     <a class="btn btn-outline-dark" href="cart.php">
                         <i class="bi-cart-fill me-1"></i>
                         Cart
-                        <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
-                        </a>
+                        <span class="badge bg-dark text-white ms-1 rounded-pill"><?php echo count(array_unique($_SESSION['carrello']));?></span>
+                    </a>
                     &nbsp;&nbsp;&nbsp;
                 </form>
                 <form action="index.php">
@@ -201,7 +201,7 @@ if (!isset($_SESSION['carrello']) || !is_array($_SESSION['carrello'])) {
                             VALUES("' . $_POST['nomeProdotto'] . '", ' . $_POST['prezzoProdotto'] . ', ' . $_POST['pesoProdotto'] . ', "' . $_POST['descrizioneProdotto'] . '", "' . $target_file . '", ' . $idCategoria . ', ' . $_POST['stockProdotto'] . ');';
                         $result = mysqli_query($conn, $query);
 
-                        $query='SELECT prodotti.id_prodotto FROM prodotti
+                        $query = 'SELECT prodotti.id_prodotto FROM prodotti
                         WHERE prodotti.nome="' . $_POST['nomeProdotto'] . '" AND
                                 prodotti.prezzo=' . $_POST['prezzoProdotto'] . ' AND
                                 prodotti.peso=' . $_POST['pesoProdotto'] . ' AND
@@ -209,14 +209,14 @@ if (!isset($_SESSION['carrello']) || !is_array($_SESSION['carrello'])) {
                                 prodotti.immagine="' . $target_file . '" AND
                                 prodotti.categoria=' . $idCategoria . ' AND
                                 prodotti.stock=' . $_POST['stockProdotto'] . '';
-                        
-                        $result=mysqli_query($conn, $query);
+
+                        $result = mysqli_query($conn, $query);
                         $row = mysqli_fetch_assoc($result);
-                        $idProdotto= $row['id_prodotto'];
-                                
+                        $idProdotto = $row['id_prodotto'];
+
                         $query = 'INSERT INTO prodotti_categorie (id_prodotto, id_categoria)
-                            VALUES ('.$idProdotto.','. $idCategoria . ');';
-                        
+                            VALUES (' . $idProdotto . ',' . $idCategoria . ');';
+
                         mysqli_query($conn, $query);
                     }
                 }
@@ -278,12 +278,12 @@ if (!isset($_SESSION['carrello']) || !is_array($_SESSION['carrello'])) {
                                         <div class="text-center">
 
                                         <form action="" method="POST">
-                                            <button type="submit" class="btn btn-outline-dark mt-auto" name="aggiungiAlCarrello" value="'. $row["id_prodotto"] .'">Add to cart</button><br></br>
+                                            <button type="submit" class="btn btn-outline-dark mt-auto" name="aggiungiAlCarrello" value="' . $row["id_prodotto"] . '">Add to cart</button><br></br>
                                         </form>';
-                                        if (isset($_POST['aggiungiAlCarrello'])) {
-                                            $_SESSION['carrello'][] = $_POST['aggiungiAlCarrello'];
-                                        }
-                                        
+                        if (isset($_POST['aggiungiAlCarrello'])) {
+                            $_SESSION['carrello'][] = $_POST['aggiungiAlCarrello'];
+                        }
+
 
 
                         if (isset($_SESSION['amministratore']) && $_SESSION['amministratore'] == 1) {
@@ -308,17 +308,17 @@ if (!isset($_SESSION['carrello']) || !is_array($_SESSION['carrello'])) {
                 if (isset($_POST['bottoneEliminaProdotto'])) {
 
                     ////////ELIMINA PRODOTTI_CATEGORIE
-                    $query="SELECT prodotti_categorie.id_categoria FROM prodotti_categorie
-                    where prodotti_categorie.id_prodotto=".$_POST['bottoneEliminaProdotto'].";";
+                    $query = "SELECT prodotti_categorie.id_categoria FROM prodotti_categorie
+                    where prodotti_categorie.id_prodotto=" . $_POST['bottoneEliminaProdotto'] . ";";
 
                     $result = mysqli_query($conn, $query);
                     $row = mysqli_fetch_assoc($result);
-                    echo"categoria:".$row['id_categoria'];
+                    echo "categoria:" . $row['id_categoria'];
 
-                    $query = "DELETE FROM prodotti_categorie WHERE prodotti_categorie.id_prodotto = ". $_POST['bottoneEliminaProdotto'] ." AND  prodotti_categorie.id_categoria=".$row['id_categoria'].";";
+                    $query = "DELETE FROM prodotti_categorie WHERE prodotti_categorie.id_prodotto = " . $_POST['bottoneEliminaProdotto'] . " AND  prodotti_categorie.id_categoria=" . $row['id_categoria'] . ";";
                     $result = mysqli_query($conn, $query);
                     ////////////////////////////////
-                    
+                
                     /////ELIMINA IMMAGINE
                     $query = "SELECT prodotti.immagine FROM prodotti WHERE prodotti.id_prodotto = " . $_POST['bottoneEliminaProdotto'] . ";";
                     $result = mysqli_query($conn, $query);
@@ -332,12 +332,12 @@ if (!isset($_SESSION['carrello']) || !is_array($_SESSION['carrello'])) {
                         }
                     }
                     ////////////////////
-
+                
                     ///////ELIMINA PRODOTTO
                     $query = "DELETE FROM prodotti WHERE prodotti.id_prodotto = " . $_POST['bottoneEliminaProdotto'] . ";";
                     $result = mysqli_query($conn, $query);
                     //////////////////////
-
+                
                     header("Refresh:0");
                 }
                 ?>
