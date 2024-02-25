@@ -197,6 +197,23 @@ $result = mysqli_query($conn, $query);
                             VALUES("' . $_POST['nomeProdotto'] . '", ' . $_POST['prezzoProdotto'] . ', ' . $_POST['pesoProdotto'] . ', "' . $_POST['descrizioneProdotto'] . '", "' . $target_file . '", ' . $idCategoria . ', ' . $_POST['stockProdotto'] . ');';
                         $result = mysqli_query($conn, $query);
 
+                        $query='SELECT prodotti.id_prodotto FROM prodotti
+                        WHERE prodotti.nome="' . $_POST['nomeProdotto'] . '" AND
+                                prodotti.prezzo=' . $_POST['prezzoProdotto'] . ' AND
+                                prodotti.peso=' . $_POST['pesoProdotto'] . ' AND
+                                prodotti.descrizione="' . $_POST['descrizioneProdotto'] . '" AND
+                                prodotti.immagine="' . $target_file . '" AND
+                                prodotti.categoria=' . $idCategoria . ' AND
+                                prodotti.stock=' . $_POST['stockProdotto'] . '';
+                        
+                        $result=mysqli_query($conn, $query);
+                        $row = mysqli_fetch_assoc($result);
+                        $idProdotto= $row['id_prodotto'];
+                                
+                        $query = 'INSERT INTO prodotti_categorie (id_prodotto, id_categoria)
+                            VALUES ('.$idProdotto.','. $idCategoria . ');';
+                        
+                        mysqli_query($conn, $query);
                     }
                 }
             }
@@ -277,20 +294,39 @@ $result = mysqli_query($conn, $query);
                 
                 if (isset($_POST['bottoneEliminaProdotto'])) {
 
+                    ////////ELIMINA PRODOTTI_CATEGORIE
+                    $query="SELECT prodotti_categorie.id_categoria FROM prodotti_categorie
+                    where prodotti_categorie.id_prodotto=".$_POST['bottoneEliminaProdotto'].";";
+
+                    $result = mysqli_query($conn, $query);
+                    $row = mysqli_fetch_assoc($result);
+                    echo"categoria:".$row['id_categoria'];
+
+                    $query = "DELETE FROM prodotti_categorie WHERE prodotti_categorie.id_prodotto = ". $_POST['bottoneEliminaProdotto'] ." AND  prodotti_categorie.id_categoria=".$row['id_categoria'].";";
+                    $result = mysqli_query($conn, $query);
+                    ////////////////////////////////
+                    
+                    /////ELIMINA IMMAGINE
                     $query = "SELECT prodotti.immagine FROM prodotti WHERE prodotti.id_prodotto = " . $_POST['bottoneEliminaProdotto'] . ";";
-                        $result = mysqli_query($conn, $query);
+                    $result = mysqli_query($conn, $query);
 
-                        if ($result) {
-                            $row = mysqli_fetch_assoc($result);
-                            $dirImmagineDaEliminare = $row['immagine'];
+                    if ($result) {
+                        $row = mysqli_fetch_assoc($result);
+                        $dirImmagineDaEliminare = $row['immagine'];
 
-                            if (file_exists($dirImmagineDaEliminare)) {
-                                unlink($dirImmagineDaEliminare);
-                            }
+                        if (file_exists($dirImmagineDaEliminare)) {
+                            unlink($dirImmagineDaEliminare);
                         }
+                    }
+                    ////////////////////
 
+                    ///////ELIMINA PRODOTTO
                     $query = "DELETE FROM prodotti WHERE prodotti.id_prodotto = " . $_POST['bottoneEliminaProdotto'] . ";";
                     $result = mysqli_query($conn, $query);
+                    //////////////////////
+
+                    
+
                     header("Refresh:0");
                 }
                 ?>
@@ -317,6 +353,6 @@ $result = mysqli_query($conn, $query);
 </body>
 
 </html>
-<?php 
+<?php
 ob_end_flush();
 ?>
