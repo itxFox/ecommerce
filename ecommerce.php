@@ -8,6 +8,10 @@ if (mysqli_connect_errno()) {
 }
 $query = "USE ecommerce;";
 $result = mysqli_query($conn, $query);
+
+if (!isset($_SESSION['carrello']) || !is_array($_SESSION['carrello'])) {
+    $_SESSION['carrello'] = array();
+}
 ?>
 
 <!DOCTYPE html>
@@ -53,11 +57,11 @@ $result = mysqli_query($conn, $query);
                     </li>
                 </ul>
                 <form class="d-flex">
-                    <button class="btn btn-outline-dark" type="submit">
+                    <a class="btn btn-outline-dark" href="cart.php">
                         <i class="bi-cart-fill me-1"></i>
                         Cart
                         <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
-                    </button>
+                        </a>
                     &nbsp;&nbsp;&nbsp;
                 </form>
                 <form action="index.php">
@@ -271,8 +275,17 @@ $result = mysqli_query($conn, $query);
                                     </div>
                                     <!-- Product actions-->
                                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                                        <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="#">Add to cart</a>
-                                        <br></br>';
+                                        <div class="text-center">
+
+                                        <form action="" method="POST">
+                                            <button type="submit" class="btn btn-outline-dark mt-auto" name="aggiungiAlCarrello" value="'. $row["id_prodotto"] .'">Add to cart</button><br></br>
+                                        </form>';
+                                        if (isset($_POST['aggiungiAlCarrello'])) {
+                                            $_SESSION['carrello'][] = $_POST['aggiungiAlCarrello'];
+                                        }
+                                        
+
+
                         if (isset($_SESSION['amministratore']) && $_SESSION['amministratore'] == 1) {
                             echo '
                                                 <form action="" method="POST">
@@ -324,8 +337,6 @@ $result = mysqli_query($conn, $query);
                     $query = "DELETE FROM prodotti WHERE prodotti.id_prodotto = " . $_POST['bottoneEliminaProdotto'] . ";";
                     $result = mysqli_query($conn, $query);
                     //////////////////////
-
-                    
 
                     header("Refresh:0");
                 }

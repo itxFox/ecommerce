@@ -1,13 +1,4 @@
-<?php
-session_start();
-include "connection.php";
-$conn = mysqli_connect($hostname, $username, $password, $dbname);
-if (mysqli_connect_errno()) {
-    echo "Connessione fallita: " . mysqli_connect_error();
-}
-$query = "USE ecommerce;";
-$result = mysqli_query($conn, $query);
-?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -36,7 +27,7 @@ $result = mysqli_query($conn, $query);
                 aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="#!">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="ecommerce.php">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
@@ -52,11 +43,11 @@ $result = mysqli_query($conn, $query);
                     </li>
                 </ul>
                 <form class="d-flex">
-                    <button class="btn btn-outline-dark" type="submit">
+                    <a class="btn btn-outline-dark" href="cart.php">
                         <i class="bi-cart-fill me-1"></i>
                         Cart
                         <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
-                    </button>
+                    </a>
                     &nbsp;&nbsp;&nbsp;
                 </form>
                 <form action="index.php">
