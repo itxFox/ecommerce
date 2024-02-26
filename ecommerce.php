@@ -9,9 +9,6 @@ if (mysqli_connect_errno()) {
 $query = "USE ecommerce;";
 $result = mysqli_query($conn, $query);
 
-if (!isset($_SESSION['carrello']) || !is_array($_SESSION['carrello'])) {
-    $_SESSION['carrello'] = array();
-}
 ?>
 
 <!DOCTYPE html>
@@ -57,11 +54,23 @@ if (!isset($_SESSION['carrello']) || !is_array($_SESSION['carrello'])) {
                     </li>
                 </ul>
                 <form class="d-flex">
-                    <a class="btn btn-outline-dark" href="cart.php">
-                        <i class="bi-cart-fill me-1"></i>
-                        Cart
-                        <span class="badge bg-dark text-white ms-1 rounded-pill"><?php echo count(array_unique($_SESSION['carrello']));?></span>
-                    </a>
+                    <?php
+                    if ($_SESSION['amministratore'] == 0) {
+                        echo '
+                            <a class="btn btn-outline-dark" href="cart.php">
+                            <i class="bi-cart-fill me-1"></i>
+                            Cart
+                            <span class="badge bg-dark text-white ms-1 rounded-pill">';
+
+                            $query = "SELECT COUNT(id_prodotto) AS num_prodotto FROM ordini"; // Utilizza un alias per il risultato
+                            $result = mysqli_query($conn, $query);
+                            $row = mysqli_fetch_assoc($result);
+
+                            echo $row['num_prodotto'] . '</span>
+                            </a>';
+                    }
+                    ?>
+
                     &nbsp;&nbsp;&nbsp;
                 </form>
                 <form action="index.php">
@@ -275,14 +284,28 @@ if (!isset($_SESSION['carrello']) || !is_array($_SESSION['carrello'])) {
                                     </div>
                                     <!-- Product actions-->
                                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                                        <div class="text-center">
-
-                                        <form action="" method="POST">
-                                            <button type="submit" class="btn btn-outline-dark mt-auto" name="aggiungiAlCarrello" value="' . $row["id_prodotto"] . '">Add to cart</button><br></br>
-                                        </form>';
-                        if (isset($_POST['aggiungiAlCarrello'])) {
-                            $_SESSION['carrello'][] = $_POST['aggiungiAlCarrello'];
+                                        <div class="text-center">';
+                        if ($_SESSION['amministratore'] == 0) {
+                            echo '
+                                            <form action="" method="POST">
+                                                <button type="submit" class="btn btn-outline-dark mt-auto" name="aggiungiAlCarrello" value="' . $row["id_prodotto"] . '">Add to cart</button><br></br>
+                                            </form>';
                         }
+
+                        if (isset($_POST['aggiungiAlCarrello'])) {
+                            $query = "INSERT INTO ordini(id_prodotto)
+                            VALUES(" . $_POST['aggiungiAlCarrello'] . ")";
+                            mysqli_query($conn, $query);
+
+                            $query = "DELETE FROM ordini
+                            WHERE id_ordine NOT IN (
+                                SELECT MIN(id_ordine)
+                                FROM ordini
+                                GROUP BY id_prodotto
+                            );";
+                            mysqli_query($conn, $query);
+                        }
+
 
 
 
