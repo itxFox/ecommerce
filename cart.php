@@ -92,10 +92,15 @@ $result = mysqli_query($conn, $query);
                         foreach ($id_prodotto_array as $prodottoDaAcquistare) {
 
                             $query = 'SELECT prodotti.id_prodotto, prodotti.nome, prodotti.prezzo, prodotti.peso, prodotti.descrizione, prodotti.immagine, prodotti.categoria, prodotti.stock FROM prodotti WHERE prodotti.id_prodotto="' . $prodottoDaAcquistare . '"';
-    
+
                             $result = mysqli_query($conn, $query);
                             $row = mysqli_fetch_array($result);
-                            $prezzoTotale = $prezzoTotale + $row['prezzo'];
+
+                            if (!isset($_POST['aumentaQuantita']))
+                                $prezzoTotale = $prezzoTotale + $row['prezzo'];
+                            else
+                                $prezzoTotale = $prezzoTotale + ($row['prezzo'] * $_POST['aumentaQuantita']);
+
                             echo '<div class="card rounded-3 mb-4">
                                 <div class="card-body p-4">
                                     <div class="row d-flex justify-content-between align-items-center">
@@ -107,20 +112,13 @@ $result = mysqli_query($conn, $query);
                                             <p class="lead fw-normal mb-2">Basic T-shirt</p>
                                             <p>Color: Default</p>
                                         </div>
-                                        <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
-                                            <button class="btn btn-link px-2"
-                                                onclick="this.parentNode.querySelector("input[type=number]").stepDown()">
-                                                <i class="fas fa-minus"></i>
-                                            </button>
-        
-                                            <input id="form1" min="0" name="quantity" value="1" type="number"
-                                                class="form-control form-control-sm" />
-        
-                                            <button class="btn btn-link px-2"
-                                                onclick="this.parentNode.querySelector("input[type=number]").stepUp()">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
-                                        </div>
+                                        
+                                            <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
+                                            <form action="" method="POST">
+                                                <input type="number" min="1" name="cambiaQuantita" onchange="submit();" style="width:70px;border-radius:5px;">
+                                            </form>
+                                            </div>
+                                        
                                         <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
                                             <h5 class="mb-0">' . $row['prezzo'] . '€</h5>
                                             <form action="" method="POST">
@@ -138,42 +136,50 @@ $result = mysqli_query($conn, $query);
 
                     }
 
-                    
+
 
                     ?>
 
                     <!------------------------------------>
 
-                    <?php 
-                        //CANCELLA ORDINE DAL DB
-                        if (isset($_POST['cancellaOrdine'])) {
-                            $query="DELETE FROM ordini WHERE ordini.id_prodotto=".$_POST['cancellaOrdine']."";
-                            mysqli_query($conn, $query);
-                            header("Refresh:0");
-                        }
-                    ?>
-                    <div class="card">
-                        <div class="card-body">
-                            <form action="" method="POST">
-                                <button onclick="submit();" name="acquista"
-                                    style="border: 1px solid yellow;border-radius:10px;padding:10px;background-color:yellow;font-size:20px;">Proceed
-                                    to Pay</button>
-                            </form>
-                            <?php
-                            if (isset($_POST['acquista'])) {
-                                header("Location: ordine.php");
-                                exit;
-                            }
+                    <?php
+                    //CANCELLA ORDINE DAL DB
+                    if (isset($_POST['cancellaOrdine'])) {
+                        $query = "DELETE FROM ordini WHERE ordini.id_prodotto=" . $_POST['cancellaOrdine'] . "";
+                        mysqli_query($conn, $query);
+                        header("Refresh:0");
+                    }
 
-                            ?>
-                            <h2 style="float:right; margin-right:200px;">Totale:
-                                <?php echo $prezzoTotale . "€"; ?>
-                            </h2>
-                        </div>
-                    </div>
+                    $query = "SELECT * FROM ordini;";
+                    $result = mysqli_query($conn, $query);
+
+                    if ($result->num_rows > 0)
+                        echo '<div class="card">
+                            <div class="card-body">
+                                <form action="" method="POST">
+                                    <button onclick="submit();" name="acquista"
+                                        style="border: 1px solid yellow;border-radius:10px;padding:10px;background-color:yellow;font-size:20px;">Proceed
+                                        to Pay</button>
+                                </form><h2 style="float:right; margin-right:200px;">Totale: ';
+                    echo $prezzoTotale . "€";
+                    echo '</h2>';
+
+
+
+                    if (isset($_POST['acquista'])) {
+                        $query = "TRUNCATE TABLE ordini";
+                        mysqli_query($conn, $query);
+                        header("Location: ordine.php");
+                        exit;
+                    }
+
+                    ?>
 
                 </div>
             </div>
+
+        </div>
+        </div>
         </div>
     </section>
     <!-- Footer-->

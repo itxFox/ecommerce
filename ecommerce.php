@@ -62,11 +62,11 @@ $result = mysqli_query($conn, $query);
                             Cart
                             <span class="badge bg-dark text-white ms-1 rounded-pill">';
 
-                            $query = "SELECT COUNT(id_prodotto) AS num_prodotto FROM ordini"; // Utilizza un alias per il risultato
-                            $result = mysqli_query($conn, $query);
-                            $row = mysqli_fetch_assoc($result);
+                        $query = "SELECT COUNT(id_prodotto) AS num_prodotto FROM ordini"; // Utilizza un alias per il risultato
+                        $result = mysqli_query($conn, $query);
+                        $row = mysqli_fetch_assoc($result);
 
-                            echo $row['num_prodotto'] . '</span>
+                        echo $row['num_prodotto'] . '</span>
                             </a>';
                     }
                     ?>
@@ -95,7 +95,7 @@ $result = mysqli_query($conn, $query);
 
         <!--CATEGORIA PRODOTTI-->
         <form action="" method="GET" name="form-categoria">
-            <select class="form-select" name="categoria" onchange="submit();">
+            <select class="form-select" name="categoria" onchange="submit();" required>
                 <option hidden>categoria</option>
                 <option value="Tutti">Tutti</option>
 
@@ -114,41 +114,42 @@ $result = mysqli_query($conn, $query);
                     echo 'Nessun dato presente';
 
                 }
-
                 ?>
+
             </select>
         </form>
 
         <!--BOTTONE AGGIUNZIONE PRODOTTO-->
         <?php
+            
         if (isset($_SESSION['amministratore']) && $_SESSION['amministratore'] == 1)
             echo '<form action="" method="GET" id="formInserimentoProdotto">
-            <button type="submit" name="cliccato">+</button>
-            </form>';
+            <button type="submit" name="cliccato">+</button></form>';
 
 
         echo '<div id="divFormAggiungi">';
         if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['cliccato'])) {
-            echo '<form action="" method="POST" enctype="multipart/form-data">
+            echo '<div style="text-align: center;background-color: #1e2125;float:left;width:260px;padding:10px;border:1x solid black;border-radius:10px;margin-top:20px;margin-left:20px;">
+            <form action="" id="formInserimentoProdotto2" method="POST" enctype="multipart/form-data">
             <div id="divFormInserimentoProdotto">
-                <h5>Inserisci un prodotto</h5>
-                <input type="text" placeholder="nome" name="nomeProdotto" id="nomeProdotto" required><br>
-                <input type="number" placeholder="prezzo" name="prezzoProdotto" id="prezzoProdotto" step="0.01" required><br>
-                <input type="number" placeholder="peso" name="pesoProdotto" id="pesoProdotto" step="0.01" required><br>
-                <input type="text" placeholder="descrizione" name="descrizioneProdotto" id="descrizioneProdotto" required><br>
-                <input type="file" name="immagineProdotto" id="immagineProdotto" accept="image/*"><br>
-                <select name="categoriaProdotto" id="categoriaProdotto">
+                <h4 style="color:white;">Inserisci un prodotto</h4>
+                <input type="text" placeholder="nome" name="nomeProdotto" id="nomeProdotto" style="margin-bottom:3px;border-radius:10px;padding:3px;" required><br>
+                <input type="number" placeholder="prezzo" name="prezzoProdotto" id="prezzoProdotto" step="0.01" style="margin-bottom:3px;border-radius:10px;padding:3px;" required><br>
+                <input type="number" placeholder="peso" name="pesoProdotto" id="pesoProdotto" step="0.01" style="margin-bottom:3px;border-radius:10px;padding:3px;" required><br>
+                <input type="text" placeholder="descrizione" name="descrizioneProdotto" id="descrizioneProdotto" style="margin-bottom:3px;border-radius:10px;padding:3px;" required><br>
+                <input type="file" name="immagineProdotto" id="immagineProdotto" accept="image/*" style="color:white;"><br>
+                <select name="categoriaProdotto" id="categoriaProdotto" style="margin-bottom:3px;border-radius:10px;padding:3px;width: 200px;">
                 ';
             echo '<option hidden>categoria</option>';
             foreach ($categorie as $categoria)
                 echo '<option value=' . $categoria . '>' . $categoria . '</option>';
 
             echo '</select><br>
-                <input type="number" placeholder="stock" name="stockProdotto" id="stockProdotto" required><br>
-                <button type="submit" name="nuovoProdotto">Inserisci</button>
-                <button onclick="closeForm();">Annulla</button>
+                <input type="number" placeholder="stock" name="stockProdotto" id="stockProdotto" required style="margin-bottom:3px;border-radius:10px;padding:3px;"><br>
+                <button type="submit" name="nuovoProdotto" style="margin-bottom:3px;border-radius:10px;padding:3px;border-color:green;color:green;">Inserisci</button>
+                <button onclick="closeForm();" style="margin-bottom:3px;border-radius:10px;padding:3px;border-color:red;color:red;">Annulla</button>
             </div>
-            </form>';
+            </form></div>';
         }
         echo '</div>';
         ?>
@@ -162,42 +163,35 @@ $result = mysqli_query($conn, $query);
 
 
 
+
         <!--INSERIMENTO DI UN PRODOTTO-->
         <?php
         if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['nuovoProdotto']) && $_SESSION['amministratore'] == 1) {
-            // Connessione al database
             $conn = mysqli_connect($hostname, $username, $password, $dbname);
 
-            // Verifica se la connessione ha avuto successo
             if (!$conn) {
                 die("Connessione al database fallita: " . mysqli_connect_error());
             }
 
-            // Percorso della directory per l'upload delle immagini
             $upload_dir = "furniture/";
 
-            // Verifica se la directory non esiste, quindi creala
             if (!file_exists($upload_dir)) {
-                mkdir($upload_dir, 0777, true); // Imposta i permessi a 0777 per consentire la scrittura
+                mkdir($upload_dir, 0777, true);
             }
 
-            // Controlla che la directory sia scrivibile
             if (!is_writable($upload_dir)) {
                 echo "La directory di upload non ha i permessi di scrittura necessari.";
                 exit;
             }
 
-            // Effettua l'upload del file
             $target_file = $upload_dir . basename($_FILES["immagineProdotto"]["name"]);
 
-            // Verifica se il prodotto esiste già nel database
             $queryCheck = 'SELECT * FROM prodotti WHERE nome="' . $_POST['nomeProdotto'] . '" AND prezzo=' . $_POST['prezzoProdotto'] . ' AND descrizione="' . $_POST['descrizioneProdotto'] . '"';
             $resultCheck = mysqli_query($conn, $queryCheck);
 
             if ($resultCheck && mysqli_num_rows($resultCheck) > 0) {
             } else {
                 if (move_uploaded_file($_FILES["immagineProdotto"]["tmp_name"], $target_file)) {
-                    // Query per ottenere l'id della categoria
                     $queryCategoria = 'SELECT categorieprodotti.id_categoria FROM categorieprodotti WHERE categorieprodotti.nome="' . $_POST['categoriaProdotto'] . '";';
                     $resultCategoria = mysqli_query($conn, $queryCategoria);
 
@@ -205,7 +199,6 @@ $result = mysqli_query($conn, $query);
                         $row = mysqli_fetch_assoc($resultCategoria);
                         $idCategoria = $row['id_categoria'];
 
-                        // Query per inserire il nuovo prodotto nel database
                         $query = 'INSERT INTO prodotti (nome, prezzo, peso, descrizione, immagine, categoria, stock)
                             VALUES("' . $_POST['nomeProdotto'] . '", ' . $_POST['prezzoProdotto'] . ', ' . $_POST['pesoProdotto'] . ', "' . $_POST['descrizioneProdotto'] . '", "' . $target_file . '", ' . $idCategoria . ', ' . $_POST['stockProdotto'] . ');';
                         $result = mysqli_query($conn, $query);

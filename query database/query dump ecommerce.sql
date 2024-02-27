@@ -20,27 +20,6 @@ CREATE TABLE clienti (
 	telefono VARCHAR(10)
 );
 
-CREATE TABLE ordini (
-	id_ordine INT(255) AUTO_INCREMENT PRIMARY KEY,
-	customer_id INT(255),
-	ammontare DOUBLE(10, 2),
-	indirizzoOrdine VARCHAR(50),
-	emailOrdine VARCHAR(25),
-	dataOrdine DATE,
-	statoOrdine VARCHAR(15),
-	FOREIGN KEY (customer_id) REFERENCES clienti(id_customer)
-);
-
-CREATE TABLE dettagliOrdini (
-    id_dettaglio INT(255) AUTO_INCREMENT PRIMARY KEY,
-    id_ordine INT(255),
-    id_prodotto INT(255),
-    prezzo DOUBLE(10, 2),
-    quantita INT(255),
-    FOREIGN KEY (id_ordine) REFERENCES ordini(id_ordine),
-    FOREIGN KEY (id_prodotto) REFERENCES prodotti(id_prodotto)
-);
-
 CREATE TABLE categorieProdotti (
     id_categoria INT(255) AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(30),
@@ -66,4 +45,10 @@ CREATE TABLE prodotti_opzioni (
     id_opzione INT(255),
     FOREIGN KEY (id_prodotto) REFERENCES prodotti(id_prodotto),
     FOREIGN KEY (id_opzione) REFERENCES opzioni(id_opzione)
+);
+
+CREATE TABLE ordini(
+	id_ordine INT(255) AUTO_INCREMENT PRIMARY KEY,
+	id_prodotto INT(255) NOT NULL,
+	FOREIGN KEY (id_prodotto) REFERENCES prodotti(id_prodotto)
 );
