@@ -37,16 +37,18 @@ $result = mysqli_query($conn, $query);
 
 
                                 <form action="" method="POST">
-                                    <?php 
-                                        if (isset($_POST['registrati'])) echo'<h2 class="fw-bold mb-2 text-uppercase">Registrati</h2>';
-                                        else echo'<h2 class="fw-bold mb-2 text-uppercase">Accedi</h2>';
+                                    <?php
+                                    if (isset($_POST['registrati']))
+                                        echo '<h2 class="fw-bold mb-2 text-uppercase">Registrati</h2>';
+                                    else
+                                        echo '<h2 class="fw-bold mb-2 text-uppercase">Accedi</h2>';
                                     ?>
                                     <br><br><br>
                                     <?php
                                     if (isset($_POST['registrati']))
                                         echo '<div>
-                                                <input type="email" id="typeEmailX" name="typeEmailX" placeholder="email" class="inputbox" />
-                                                <input type="password" id="typePasswordX" name="typePasswordX" placeholder="password" class="inputbox" />
+                                                <input type="email" id="typeEmailX" name="typeEmailX" placeholder="email" class="inputbox" required/>
+                                                <input type="password" id="typePasswordX" name="typePasswordX" placeholder="password" class="inputbox" required/>
                                                 <br>
                                                 <input type="text" id="typeNameX" name="typeNameX" placeholder="nome" class="inputbox" required/>
                                                 <input type="indirizzo" id="typeIndirizzoX" name="typeIndirizzoX" placeholder="indirizzo" class="inputbox" required/>
@@ -59,31 +61,29 @@ $result = mysqli_query($conn, $query);
                                     else
                                         echo '<div class="form-outline form-white mb-4">
                                                 <input type="email" id="typeEmailX" name="typeEmailX"
-                                                    class="form-control form-control-lg" />
+                                                    class="form-control form-control-lg" required/>
                                                 <label class="form-label" for="typeEmailX">Email</label>
                                             </div>
 
                                             <div class="form-outline form-white mb-4">
                                                 <input type="password" id="typePasswordX" name="typePasswordX"
-                                                    class="form-control form-control-lg" />
+                                                    class="form-control form-control-lg" required/>
                                                 <label class="form-label" for="typePasswordX">Password</label>
                                             </div>';
                                     ?>
 
-                                    <?php 
-                                        if (!isset($_POST['registrati']))
-                                            echo'<button class="btn btn-outline-light btn-lg px-5" type="submit" id="loginButton" name="loginButton"
-                                            disabled>Entra</button>';
-                                        else
-                                        echo'<button class="btn btn-outline-light btn-lg px-5" type="submit" id="signinButton" name="v"
-                                            disabled>Registra</button>';
+                                    <?php
+                                    if (!isset($_POST['registrati']))
+                                        echo '<button class="btn btn-outline-light btn-lg px-5" type="submit" id="loginButton" name="loginButton">Entra</button>';
+                                    else
+                                        echo '<button class="btn btn-outline-light btn-lg px-5" type="submit" id="signinButton" name="v">Registra</button>';
                                     ?>
-                                    
+
                                 </form>
                                 <?php
-                                if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['loginButton'])) {
-                                    if (isset($_POST['typeEmailX']) && isset($_POST['typePasswordX'])) {
-                                        $query = 'SELECT clienti.email, clienti.passw, clienti.amministratore
+                                if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                                    if (isset($_POST['loginButton'])) {
+                                        $query = 'SELECT clienti.id_customer, clienti.email, clienti.passw, clienti.amministratore
                                                     FROM clienti
                                                     WHERE clienti.email="' . $_POST['typeEmailX'] . '" AND clienti.passw="' . $_POST['typePasswordX'] . '";';
 
@@ -92,51 +92,41 @@ $result = mysqli_query($conn, $query);
                                         if ($result->num_rows > 0) {
                                             $row = mysqli_fetch_assoc($result);
                                             $_SESSION['amministratore'] = $row['amministratore'];
+                                            $_SESSION['cliente'] = $row['id_customer'];
                                             header("Location: ecommerce.php");
                                             exit();
                                         } else {
-                                            // Utente non trovato, puoi aggiungere un messaggio o una logica aggiuntiva qui
                                             echo "account non trovato";
                                         }
-                                    }
-                                }
 
-                                if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signinButton'])){
-                                    echo'porco dio';
-                                }
+
+                                    } else if (isset($_POST['signinButton'])) {
+                                        $query="INSERT INTO clienti(email,passw,nome,indirizzo,citta,telefono)
+                                        VALUES(".$_POST['typeEmailX'].",".$_POST['typePasswordX'].",".$_POST['typeNameX'].",".$_POST['typeIndirizzoX'].",".$_POST['typeCittaX'].",".$_POST['typeNumeroX'].")";
+                                        $result = mysqli_query($conn, $query);
+
+                                        $query = 'SELECT clienti.id_customer, clienti.email, clienti.passw, clienti.amministratore
+                                                    FROM clienti
+                                                    WHERE clienti.email="' . $_POST['typeEmailX'] . '" AND clienti.passw="' . $_POST['typePasswordX'] . '";';
+
+                                        $result = mysqli_query($conn, $query);
+
+                                        
+                                        $row = mysqli_fetch_assoc($result);
+                                        $_SESSION['amministratore'] = $row['amministratore'];
+                                        $_SESSION['cliente'] = $row['id_customer'];
+
+                                        echo '<script>alert("Signed in as ' .$_POST['typeNameX']. '");</script>';
+                                        sleep(3);
+                                        header("Location: ecommerce.php");
+                                        exit();
+                                    
+
+                                }}
+
+
 
                                 ?>
-
-                                <script>
-                                    document.addEventListener('DOMContentLoaded', function () {
-                                        const emailInput = document.getElementById('typeEmailX');
-                                        const passwlInput = document.getElementById('typePasswordX');
-                                        const loginButton = document.getElementById('loginButton');
-                                        const signinButton = document.getElementById('signinButton');
-                                        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-
-                                        emailInput.addEventListener('input', function () {
-                                            if (emailRegex.test(emailInput.value) && passwlInput.value.length >= 5) {
-                                                loginButton.removeAttribute('disabled');
-                                                signinButton.removeAttribute('disabled');
-                                                
-                                            } else {
-                                                loginButton.setAttribute('disabled', 'true');
-                                                signinButton.setAttribute('disabled', 'true');
-                                            }
-                                        });
-
-                                        passwlInput.addEventListener('input', function () {
-                                            if (emailRegex.test(emailInput.value) && passwlInput.value.length >= 5) {
-                                                loginButton.removeAttribute('disabled');
-                                                signinButton.removeAttribute('disabled');
-                                            } else {
-                                                loginButton.setAttribute('disabled', 'true');
-                                                signinButton.setAttribute('disabled', 'true');
-                                            }
-                                        });
-                                    });
-                                </script>
 
 
                                 <div class="d-flex justify-content-center text-center mt-4 pt-1">
@@ -146,21 +136,21 @@ $result = mysqli_query($conn, $query);
                                 </div>
 
                             </div>
-                                
+
                             <form action="" method="POST">
-                                <?php 
-                                    if (isset($_POST['registrati']))
-                                        echo'<p class="mb-0">Hai un account?
+                                <?php
+                                if (isset($_POST['registrati']))
+                                    echo '<p class="mb-0">Hai un account?
                                         <button class="custom-button"
                                             onclick="submit();">Accedi</button>
                                     </p>';
-                                    else
-                                        echo'<p class="mb-0">Non hai un account?
+                                else
+                                    echo '<p class="mb-0">Non hai un account?
                                         <button class="custom-button" name="registrati"
                                             onclick="submit();">Registrati</button>
                                         </p>';
                                 ?>
-                                
+
                             </form>
 
                         </div>

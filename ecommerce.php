@@ -62,7 +62,7 @@ $result = mysqli_query($conn, $query);
                             Cart
                             <span class="badge bg-dark text-white ms-1 rounded-pill">';
 
-                        $query = "SELECT COUNT(id_prodotto) AS num_prodotto FROM ordini"; // Utilizza un alias per il risultato
+                        $query = "SELECT COUNT(id_prodotto) AS num_prodotto FROM ordini WHERE ordini.id_customer=".$_SESSION['cliente'].""; // Utilizza un alias per il risultato
                         $result = mysqli_query($conn, $query);
                         $row = mysqli_fetch_assoc($result);
 
@@ -280,14 +280,22 @@ $result = mysqli_query($conn, $query);
                                         <div class="text-center">';
                         if ($_SESSION['amministratore'] == 0) {
                             echo '
+                                            
+                                            <br>
                                             <form action="" method="POST">
+                                                <input type="number" value="1" min="1" name="cambiaQuantita'. $row["id_prodotto"] .'" style="width:70px;border-radius:5px;text-align:center;">
+                                                <br><br>
                                                 <button type="submit" class="btn btn-outline-dark mt-auto" name="aggiungiAlCarrello" value="' . $row["id_prodotto"] . '">Add to cart</button><br></br>
                                             </form>';
                         }
 
                         if (isset($_POST['aggiungiAlCarrello'])) {
-                            $query = "INSERT INTO ordini(id_prodotto)
-                            VALUES(" . $_POST['aggiungiAlCarrello'] . ")";
+                            $quantita = $_POST['cambiaQuantita' . $_POST['aggiungiAlCarrello']];
+                            $id_prodotto = $_POST['aggiungiAlCarrello'];
+                            $id_customer = $_SESSION['cliente'];
+
+                            $query = "INSERT INTO ordini(id_prodotto,id_customer,quantita)
+                            VALUES(" .$id_prodotto. ",".$id_customer.",".$quantita.")";
                             mysqli_query($conn, $query);
 
                             $query = "DELETE FROM ordini
