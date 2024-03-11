@@ -34,28 +34,38 @@ $result = mysqli_query($conn, $query);
                 aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="ecommerce.php">Home</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="index.php">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
+                            data-bs-toggle="dropdown" aria-expanded="false">Account Settings</a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#!">All Products</a></li>
-                            <li>
-                                <hr class="dropdown-divider" />
-                            </li>
-                            <li><a class="dropdown-item" href="#!">Popular Items</a></li>
-                            <li><a class="dropdown-item" href="#!">New Arrivals</a></li>
+                            <form action="login.php" method="POST">
+                            <li><button style="color:red;" class="dropdown-item" href="#!" name="accountDelete">Delete <?php echo$_SESSION['nome'];?></button></li>
+                            </form>
+                            <?php 
+                                if (isset($_POST['accountDelete'])) {
+                                    $query='DELETE FROM clienti WHERE clienti.email="'.$_SESSION['email'].'"';
+                                    $result = mysqli_query($conn, $query);
+                                    echo'<script>alert("Account eliminato!");</script>';
+                                    header("Location: login.php");
+                                }
+                            ?>
                         </ul>
-                    </li>
+                    </li> 
                 </ul>
+                <?php
+                if (isset($_SESSION['cliente'])) {
+                    echo '<form action="login.php">
+                        <button class="btn btn-outline-dark" type="submit">
+                            <h7>Login / Sign In</h7>
+                        </button>
+                    </form>&nbsp;&nbsp;&nbsp;
+                    <h3>Ciao ';
+                    echo$_SESSION['nome'].'!</h3>';
+                }
+                ?>
 
-                <form action="index.php">
-                    <button class="btn btn-outline-dark" type="submit">
-                        <h7>Logout</h7>
-                    </button>
-                </form>
             </div>
         </div>
     </nav>
@@ -80,7 +90,7 @@ $result = mysqli_query($conn, $query);
 
                     <?php
                     $prezzoTotale = 0;
-                    $query = "SELECT id_prodotto, quantita FROM ordini WHERE ordini.id_customer=".$_SESSION['cliente']."";
+                    $query = "SELECT id_prodotto, quantita FROM ordini WHERE ordini.id_customer=" . $_SESSION['cliente'] . "";
                     $result = mysqli_query($conn, $query);
 
                     if (mysqli_num_rows($result) > 0) {
@@ -109,13 +119,13 @@ $result = mysqli_query($conn, $query);
                                         <div class="col-md-3 col-lg-3 col-xl-3">
                                             <p class="lead fw-normal mb-2">Basic T-shirt</p>
                                             <p>Color: Default</p>
-                                            <p>Quantity: '.$quantita_prodotto[array_search($prodottoDaAcquistare, $id_prodotto_array)] .' </p>
+                                            <p>Quantity: ' . $quantita_prodotto[array_search($prodottoDaAcquistare, $id_prodotto_array)] . ' </p>
                                         </div>
                                         
                                             
                                         
                                         <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
-                                            <h5 class="mb-0">' . $row['prezzo']*$quantita_prodotto[array_search($prodottoDaAcquistare, $id_prodotto_array)] . '€</h5>
+                                            <h5 class="mb-0">' . $row['prezzo'] * $quantita_prodotto[array_search($prodottoDaAcquistare, $id_prodotto_array)] . '€</h5>
                                             <form action="" method="POST">
                                             <button style="border:none;background-color:transparent;color:red;font-size:30px; float:right;" value="' . $row['id_prodotto'] . '" name="cancellaOrdine">x</button>
                                         </form>
@@ -127,12 +137,12 @@ $result = mysqli_query($conn, $query);
                                     </div>
                                 </div>
                             </div>';
-                            $prezzoTotale+=$row['prezzo']*$quantita_prodotto[array_search($prodottoDaAcquistare, $id_prodotto_array)];
+                            $prezzoTotale += $row['prezzo'] * $quantita_prodotto[array_search($prodottoDaAcquistare, $id_prodotto_array)];
                         }
 
                     }
 
-                    
+
 
                     ?>
 

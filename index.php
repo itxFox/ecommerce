@@ -1,7 +1,6 @@
 <?php
+ob_start();
 session_start();
-ob_start(); // Avvia l'output buffering
-
 include "connection.php";
 $conn = mysqli_connect($hostname, $username, $password, $dbname);
 if (mysqli_connect_errno()) {
@@ -9,160 +8,416 @@ if (mysqli_connect_errno()) {
 }
 $query = "USE ecommerce;";
 $result = mysqli_query($conn, $query);
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="css/login.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Fox'shop</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <!-- Bootstrap icons-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
 </head>
 
 <body>
-    <section class="vh-100 gradient-custom">
-        <div class="container py-5 h-100">
-            <div class="row d-flex justify-content-center align-items-center h-100">
-                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                    <div class="card bg-dark text-white" style="border-radius: 1rem;">
-                        <div class="card-body p-5 text-center">
-
-                            <div class="mb-md-5 mt-md-4 pb-5">
-
-
-                                <form action="" method="POST">
-                                    <?php
-                                    if (isset($_POST['registrati']))
-                                        echo '<h2 class="fw-bold mb-2 text-uppercase">Registrati</h2>';
-                                    else
-                                        echo '<h2 class="fw-bold mb-2 text-uppercase">Accedi</h2>';
-                                    ?>
-                                    <br><br><br>
-                                    <?php
-                                    if (isset($_POST['registrati']))
-                                        echo '<div>
-                                                <input type="email" id="typeEmailX" name="typeEmailX" placeholder="email" class="inputbox" required/>
-                                                <input type="password" id="typePasswordX" name="typePasswordX" placeholder="password" class="inputbox" required/>
-                                                <br>
-                                                <input type="text" id="typeNameX" name="typeNameX" placeholder="nome" class="inputbox" required/>
-                                                <input type="indirizzo" id="typeIndirizzoX" name="typeIndirizzoX" placeholder="indirizzo" class="inputbox" required/>
-                                                <br>
-                                                <input type="text" id="typeCittaX" name="typeCittaX" placeholder="città" class="inputbox" required/>
-                                                <input type="text" class="inputbox" id="typeNumeroX" name="typeNumeroX" placeholder="telefono" required />
-                                                <br>
-                                                <input type="password" id="typePasswordXConferma" name="typePasswordXConferma" placeholder="conferma password" class="inputbox"required />
-                                                </div>';
-                                    else
-                                        echo '<div class="form-outline form-white mb-4">
-                                                <input type="email" id="typeEmailX" name="typeEmailX"
-                                                    class="form-control form-control-lg" required/>
-                                                <label class="form-label" for="typeEmailX">Email</label>
-                                            </div>
-
-                                            <div class="form-outline form-white mb-4">
-                                                <input type="password" id="typePasswordX" name="typePasswordX"
-                                                    class="form-control form-control-lg" required/>
-                                                <label class="form-label" for="typePasswordX">Password</label>
-                                            </div>';
-                                    ?>
-
-                                    <?php
-                                    if (!isset($_POST['registrati']))
-                                        echo '<button class="btn btn-outline-light btn-lg px-5" type="submit" id="loginButton" name="loginButton">Entra</button>';
-                                    else
-                                        echo '<button class="btn btn-outline-light btn-lg px-5" type="submit" id="signinButton" name="v">Registra</button>';
-                                    ?>
-
-                                </form>
-                                <?php
-                                if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                                    if (isset($_POST['loginButton'])) {
-                                        $query = 'SELECT clienti.id_customer, clienti.email, clienti.passw, clienti.amministratore
-                                                    FROM clienti
-                                                    WHERE clienti.email="' . $_POST['typeEmailX'] . '" AND clienti.passw="' . $_POST['typePasswordX'] . '";';
-
-                                        $result = mysqli_query($conn, $query);
-
-                                        if ($result->num_rows > 0) {
-                                            $row = mysqli_fetch_assoc($result);
-                                            $_SESSION['amministratore'] = $row['amministratore'];
-                                            $_SESSION['cliente'] = $row['id_customer'];
-                                            header("Location: ecommerce.php");
-                                            exit();
-                                        } else {
-                                            echo "account non trovato";
-                                        }
-
-
-                                    } else if (isset($_POST['signinButton'])) {
-                                        $query="INSERT INTO clienti(email,passw,nome,indirizzo,citta,telefono)
-                                        VALUES(".$_POST['typeEmailX'].",".$_POST['typePasswordX'].",".$_POST['typeNameX'].",".$_POST['typeIndirizzoX'].",".$_POST['typeCittaX'].",".$_POST['typeNumeroX'].")";
-                                        $result = mysqli_query($conn, $query);
-
-                                        $query = 'SELECT clienti.id_customer, clienti.email, clienti.passw, clienti.amministratore
-                                                    FROM clienti
-                                                    WHERE clienti.email="' . $_POST['typeEmailX'] . '" AND clienti.passw="' . $_POST['typePasswordX'] . '";';
-
-                                        $result = mysqli_query($conn, $query);
-
-                                        
-                                        $row = mysqli_fetch_assoc($result);
-                                        $_SESSION['amministratore'] = $row['amministratore'];
-                                        $_SESSION['cliente'] = $row['id_customer'];
-
-                                        echo '<script>alert("Signed in as ' .$_POST['typeNameX']. '");</script>';
-                                        sleep(3);
-                                        header("Location: ecommerce.php");
-                                        exit();
-                                    
-
-                                }}
-
-
-
-                                ?>
-
-
-                                <div class="d-flex justify-content-center text-center mt-4 pt-1">
-                                    <a href="#!" class="text-white"><i class="fab fa-facebook-f fa-lg"></i></a>
-                                    <a href="#!" class="text-white"><i class="fab fa-twitter fa-lg mx-4 px-2"></i></a>
-                                    <a href="#!" class="text-white"><i class="fab fa-google fa-lg"></i></a>
-                                </div>
-
-                            </div>
-
+    <!-- Navigation-->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container px-4 px-lg-5">
+            <p class="navbar-brand" href="#!">The future of furniture</p>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="#!">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                    <li class="nav-item dropdown">
+                        <?php if (isset($_SESSION['cliente'])) {
+                            echo'<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">Account Settings</a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <form action="" method="POST">
-                                <?php
-                                if (isset($_POST['registrati']))
-                                    echo '<p class="mb-0">Hai un account?
-                                        <button class="custom-button"
-                                            onclick="submit();">Accedi</button>
-                                    </p>';
-                                else
-                                    echo '<p class="mb-0">Non hai un account?
-                                        <button class="custom-button" name="registrati"
-                                            onclick="submit();">Registrati</button>
-                                        </p>';
-                                ?>
+                            <li><button style="color:red;" class="dropdown-item" href="#!" name="accountDelete">Delete ';
+                            echo$_SESSION['nome']."</button></li></form>";
+                        }
+                        ?>
+                        
+                            
+                            <?php 
+                                if (isset($_POST['accountDelete'])) {
+                                    $query='DELETE FROM ordini WHERE ordini.id_customer='.$_SESSION['cliente'].'';
+                                    mysqli_query($conn, $query);
+                                    $query='DELETE FROM clienti WHERE clienti.id_customer='.$_SESSION['cliente'].'';
+                                    mysqli_query($conn, $query);
+                                    session_destroy();
+                                    header("Location: login.php");
+                                    exit();
+                                }
+                            ?>
+                        </ul>
+                    </li> 
+                </ul>
+                
+                <form class="d-flex">
+                    <?php
+                    if (isset($_SESSION['amministratore']) && $_SESSION['amministratore'] == 0) {
+                        echo '
+                            <a class="btn btn-outline-dark" href="cart.php">
+                            <i class="bi-cart-fill me-1"></i>
+                            Cart
+                            <span class="badge bg-dark text-white ms-1 rounded-pill">';
 
-                            </form>
+                        $query = "SELECT COUNT(id_prodotto) AS num_prodotto FROM ordini WHERE ordini.id_customer=" . $_SESSION['cliente'] . ""; // Utilizza un alias per il risultato
+                        $result = mysqli_query($conn, $query);
+                        $row = mysqli_fetch_assoc($result);
 
-                        </div>
-                    </div>
-                </div>
+                        echo $row['num_prodotto'] . '</span>
+                            </a>';
+                    }
+                    ?>
+
+                    &nbsp;&nbsp;&nbsp;
+                </form>
+                <?php
+                if (isset($_SESSION['cliente']) && isset($_SESSION['nome'])) {
+                    echo '<form action="login.php">
+                        <button class="btn btn-outline-dark" type="submit">
+                            <h7>Login / Sign In</h7>
+                        </button>
+                    </form>&nbsp;&nbsp;&nbsp;
+                    <h3>Ciao ';
+                    echo$_SESSION['nome'].'!</h3>';
+                }
+                else {
+                    echo '<form action="login.php">
+                        <button class="btn btn-outline-dark" type="submit">
+                            <h7>Login / Sing In</h7>
+                        </button>
+                    </form>&nbsp;&nbsp;&nbsp;
+                    <h3>Modalità Ospite</h3>';
+                }
+                ?>
+
+            </div>
+        </div>
+    </nav>
+    <!-- Header-->
+    <header class="bg-dark py-5">
+        <div class="container px-4 px-lg-5 my-5">
+            <div class="text-center text-white">
+                <h1 class="display-4 fw-bolder">Fox's furniture</h1>
+                <p class="lead fw-normal text-white-50 mb-0">poltrone e sofà, informatici di qualità</p>
+            </div>
+        </div>
+    </header>
+    <!-- SEZIONE DEI PRODOTTI-->
+    <section class="py-5">
+
+        <!--CATEGORIA PRODOTTI-->
+        <form action="" method="GET" name="form-categoria">
+            <select class="form-select" name="categoria" onchange="submit();" required>
+                <option hidden>categoria</option>
+                <option value="Tutti">Tutti</option>
+
+                <?php
+                $query = 'SELECT categorieprodotti.id_categoria, categorieprodotti.nome, categorieprodotti.descrizione FROM categorieprodotti';
+                $result = mysqli_query($conn, $query);
+
+                $categorie = array();
+
+                if ($result->num_rows > 0) {
+                    while ($row = mysqli_fetch_array($result)) {
+                        $categorie[] = $row["nome"];
+                        echo '<option value="' . $row["id_categoria"] . '">' . $row["nome"] . '</option>';
+                    }
+                } else {
+                    echo 'Nessun dato presente';
+
+                }
+                ?>
+
+            </select>
+        </form>
+
+        <!--BOTTONE AGGIUNZIONE PRODOTTO-->
+        <?php
+
+        if (isset($_SESSION['amministratore']) && $_SESSION['amministratore'] == 1)
+            echo '<form action="" method="GET" id="formInserimentoProdotto">
+            <button type="submit" name="cliccato">+</button></form>';
+
+
+        echo '<div id="divFormAggiungi">';
+        if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['cliccato'])) {
+            echo '<div style="text-align: center;background-color: #1e2125;float:left;width:260px;padding:10px;border:1x solid black;border-radius:10px;margin-top:20px;margin-left:20px;">
+            <form action="" id="formInserimentoProdotto2" method="POST" enctype="multipart/form-data">
+            <div id="divFormInserimentoProdotto">
+                <h4 style="color:white;">Inserisci un prodotto</h4>
+                <input type="text" placeholder="nome" name="nomeProdotto" id="nomeProdotto" style="margin-bottom:3px;border-radius:10px;padding:3px;" required><br>
+                <input type="number" placeholder="prezzo" name="prezzoProdotto" id="prezzoProdotto" step="0.01" style="margin-bottom:3px;border-radius:10px;padding:3px;" required><br>
+                <input type="number" placeholder="peso" name="pesoProdotto" id="pesoProdotto" step="0.01" style="margin-bottom:3px;border-radius:10px;padding:3px;" required><br>
+                <input type="text" placeholder="descrizione" name="descrizioneProdotto" id="descrizioneProdotto" style="margin-bottom:3px;border-radius:10px;padding:3px;" required><br>
+                <input type="file" name="immagineProdotto" id="immagineProdotto" accept="image/*" style="color:white;"><br>
+                <select name="categoriaProdotto" id="categoriaProdotto" style="margin-bottom:3px;border-radius:10px;padding:3px;width: 200px;">
+                ';
+            echo '<option hidden>categoria</option>';
+            foreach ($categorie as $categoria)
+                echo '<option value=' . $categoria . '>' . $categoria . '</option>';
+
+            echo '</select><br>
+                <input type="number" placeholder="stock" name="stockProdotto" id="stockProdotto" required style="margin-bottom:3px;border-radius:10px;padding:3px;"><br>
+                <button type="submit" name="nuovoProdotto" style="margin-bottom:3px;border-radius:10px;padding:3px;border-color:green;color:green;">Inserisci</button>
+                <button onclick="closeForm();" style="margin-bottom:3px;border-radius:10px;padding:3px;border-color:red;color:red;">Annulla</button>
+            </div>
+            </form></div>';
+        }
+        echo '</div>';
+        ?>
+
+        <script>
+            function closeForm() {
+                document.getElementById('divFormAggiungi').remove();
+                document.getElementById('divFormInserimentoProdotto').remove();
+            }
+        </script>
+
+
+
+
+        <!--INSERIMENTO DI UN PRODOTTO-->
+        <?php
+        if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['nuovoProdotto']) && $_SESSION['amministratore'] == 1) {
+            $conn = mysqli_connect($hostname, $username, $password, $dbname);
+
+            if (!$conn) {
+                die("Connessione al database fallita: " . mysqli_connect_error());
+            }
+
+            $upload_dir = "furniture/";
+
+            if (!file_exists($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+
+            if (!is_writable($upload_dir)) {
+                echo "La directory di upload non ha i permessi di scrittura necessari.";
+                exit;
+            }
+
+            $target_file = $upload_dir . basename($_FILES["immagineProdotto"]["name"]);
+
+            $queryCheck = 'SELECT * FROM prodotti WHERE nome="' . $_POST['nomeProdotto'] . '" AND prezzo=' . $_POST['prezzoProdotto'] . ' AND descrizione="' . $_POST['descrizioneProdotto'] . '"';
+            $resultCheck = mysqli_query($conn, $queryCheck);
+
+            if ($resultCheck && mysqli_num_rows($resultCheck) > 0) {
+            } else {
+                if (move_uploaded_file($_FILES["immagineProdotto"]["tmp_name"], $target_file)) {
+                    $queryCategoria = 'SELECT categorieprodotti.id_categoria FROM categorieprodotti WHERE categorieprodotti.nome="' . $_POST['categoriaProdotto'] . '";';
+                    $resultCategoria = mysqli_query($conn, $queryCategoria);
+
+                    if ($resultCategoria && mysqli_num_rows($resultCategoria) > 0) {
+                        $row = mysqli_fetch_assoc($resultCategoria);
+                        $idCategoria = $row['id_categoria'];
+
+                        $query = 'INSERT INTO prodotti (nome, prezzo, peso, descrizione, immagine, categoria, stock)
+                            VALUES("' . $_POST['nomeProdotto'] . '", ' . $_POST['prezzoProdotto'] . ', ' . $_POST['pesoProdotto'] . ', "' . $_POST['descrizioneProdotto'] . '", "' . $target_file . '", ' . $idCategoria . ', ' . $_POST['stockProdotto'] . ');';
+                        $result = mysqli_query($conn, $query);
+
+                        $query = 'SELECT prodotti.id_prodotto FROM prodotti
+                        WHERE prodotti.nome="' . $_POST['nomeProdotto'] . '" AND
+                                prodotti.prezzo=' . $_POST['prezzoProdotto'] . ' AND
+                                prodotti.peso=' . $_POST['pesoProdotto'] . ' AND
+                                prodotti.descrizione="' . $_POST['descrizioneProdotto'] . '" AND
+                                prodotti.immagine="' . $target_file . '" AND
+                                prodotti.categoria=' . $idCategoria . ' AND
+                                prodotti.stock=' . $_POST['stockProdotto'] . '';
+
+                        $result = mysqli_query($conn, $query);
+                        $row = mysqli_fetch_assoc($result);
+                        $idProdotto = $row['id_prodotto'];
+
+                        $query = 'INSERT INTO prodotti_categorie (id_prodotto, id_categoria)
+                            VALUES (' . $idProdotto . ',' . $idCategoria . ');';
+
+                        mysqli_query($conn, $query);
+                    }
+                }
+            }
+        }
+
+
+        ?>
+
+
+
+        <!-- CONTENITORE DEI PRODOTTI-->
+        <div class="container px-4 px-lg-5 mt-5">
+            <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+
+
+
+
+                <!-- INIZIO PRODOTTI-->
+
+                <?php
+                //stampa di tutti i prodotti del database della categoria scelta, se si seleziona Tutti, stamperà tutti i prodotti
+                
+
+
+                if (isset($_GET['categoria']) && $_GET['categoria'] != "Tutti")
+                    $query = "SELECT prodotti.id_prodotto, prodotti.nome, prodotti.prezzo, prodotti.peso, prodotti.descrizione, prodotti.immagine, prodotti.stock
+                                    FROM prodotti
+                                    WHERE prodotti.categoria=" . $_GET['categoria'] . ";";
+                else
+                    $query = "SELECT prodotti.id_prodotto, prodotti.nome, prodotti.prezzo, prodotti.peso, prodotti.descrizione, prodotti.immagine, prodotti.stock
+                                    FROM prodotti;";
+                $result = mysqli_query($conn, $query);
+                if ($result->num_rows > 0) {
+                    while ($row = mysqli_fetch_array($result)) {
+                        echo '<div class="col mb-5">
+                                <div class="card h-100">
+                                    <!-- Product image-->
+                                    <img class="card-img-top" src="' . $row["immagine"] . '" alt="..." />
+                                    <!-- Product details-->
+                                    <div class="card-body p-4">
+                                        <div class="text-center">
+                                            <!-- Product name-->
+                                            <h5 class="fw-bolder">' . $row["nome"] . '</h5>
+                                            <!-- Product reviews-->
+                                            <div class="d-flex justify-content-center small text-warning mb-2">
+                                                <div class="bi-star-fill"></div>
+                                                <div class="bi-star-fill"></div>
+                                                <div class="bi-star-fill"></div>
+                                                <div class="bi-star-fill"></div>
+                                                <div class="bi-star-fill"></div>
+                                            </div>
+                                            <!-- Product price-->
+                                            ' . $row["prezzo"] . '
+                                        </div>
+                                    </div>
+                                    <!-- Product actions-->
+                                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                                        <div class="text-center">';
+                        if (isset($_SESSION['amministratore']) && $_SESSION['amministratore'] == 0) {
+                            echo '
+                                            
+                                            <br>
+                                            <form action="" method="POST">
+                                                <input type="number" value="1" min="1" name="cambiaQuantita' . $row["id_prodotto"] . '" style="width:70px;border-radius:5px;text-align:center;">
+                                                <br><br>
+                                                <button type="submit" class="btn btn-outline-dark mt-auto" name="aggiungiAlCarrello" value="' . $row["id_prodotto"] . '">Add to cart</button><br></br>
+                                            </form>';
+                        }
+
+                        if (isset($_POST['aggiungiAlCarrello'])) {
+                            $quantita = $_POST['cambiaQuantita' . $_POST['aggiungiAlCarrello']];
+                            $id_prodotto = $_POST['aggiungiAlCarrello'];
+                            $id_customer = $_SESSION['cliente'];
+
+                            $query = "INSERT INTO ordini(id_prodotto,id_customer,quantita)
+                            VALUES(" . $id_prodotto . "," . $id_customer . "," . $quantita . ")";
+                            mysqli_query($conn, $query);
+
+                            $query = "DELETE FROM ordini
+                            WHERE id_ordine NOT IN (
+                                SELECT MIN(id_ordine)
+                                FROM ordini
+                                GROUP BY id_prodotto
+                            );";
+                            mysqli_query($conn, $query);
+                            header("Refresh:0");
+                        }
+
+
+
+
+                        if (isset($_SESSION['amministratore']) && $_SESSION['amministratore'] == 1) {
+                            echo '
+                                                <form action="" method="POST">
+                                                    <button onclick="submit();" style="color:red;font-size:20px;border-color:red;" name="bottoneEliminaProdotto" value="' . $row["id_prodotto"] . '">Elimina</button>
+                                                </form>';
+                        }
+
+                        echo '
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>';
+                    }
+                } else {
+                    echo "Nessun dato presente";
+                }
+
+                //ELIMINAZIONE PRODOTTO DAL DATABASE
+                
+                if (isset($_POST['bottoneEliminaProdotto'])) {
+
+                    ////////ELIMINA PRODOTTI_CATEGORIE
+                    $query = "SELECT prodotti_categorie.id_categoria FROM prodotti_categorie
+                    where prodotti_categorie.id_prodotto=" . $_POST['bottoneEliminaProdotto'] . ";";
+
+                    $result = mysqli_query($conn, $query);
+                    $row = mysqli_fetch_assoc($result);
+                    echo "categoria:" . $row['id_categoria'];
+
+                    $query = "DELETE FROM prodotti_categorie WHERE prodotti_categorie.id_prodotto = " . $_POST['bottoneEliminaProdotto'] . " AND  prodotti_categorie.id_categoria=" . $row['id_categoria'] . ";";
+                    $result = mysqli_query($conn, $query);
+                    ////////////////////////////////
+                
+                    /////ELIMINA IMMAGINE
+                    $query = "SELECT prodotti.immagine FROM prodotti WHERE prodotti.id_prodotto = " . $_POST['bottoneEliminaProdotto'] . ";";
+                    $result = mysqli_query($conn, $query);
+
+                    if ($result) {
+                        $row = mysqli_fetch_assoc($result);
+                        $dirImmagineDaEliminare = $row['immagine'];
+
+                        if (file_exists($dirImmagineDaEliminare)) {
+                            unlink($dirImmagineDaEliminare);
+                        }
+                    }
+                    ////////////////////
+                
+                    ///////ELIMINA PRODOTTO
+                    $query = "DELETE FROM prodotti WHERE prodotti.id_prodotto = " . $_POST['bottoneEliminaProdotto'] . ";";
+                    $result = mysqli_query($conn, $query);
+                    //////////////////////
+                
+                    header("Refresh:0");
+                }
+                ?>
+
+
+                <!---------------------------->
             </div>
         </div>
     </section>
+
+
+
+
+    <!-- Footer-->
+    <footer class="py-5 bg-dark">
+        <div class="container">
+            <p class="m-0 text-center text-white">Copyright &copy; Fox's furniture 2023</p>
+        </div>
+    </footer>
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
+    <script src="js/scripts.js"></script>
 </body>
 
 </html>
-
 <?php
 ob_end_flush();
 ?>
